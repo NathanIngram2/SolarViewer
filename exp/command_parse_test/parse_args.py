@@ -1,30 +1,19 @@
 import argparse
+# Command line argument parser.
+parser = argparse.ArgumentParser(
+    description='Solar Viewer is designed to measure microwave radiation from the sun. This'
+                ' program controls tracking the sun, collecting data, and data analysis.')
+parser.add_argument('stop_time', type=str, help='Time to stop collecting data. Format HH:MM')
+parser.add_argument('meas_interval', type=int, help='Time in minutes between measurements')
 
-parser = argparse.ArgumentParser(description='Optional app description')
+parser.add_argument('--azimuth_offset', type=int, nargs='?', const=0, default=0, help='Specify primary lobes offset from horizontal in degrees (0 for horn, ~20 for dish)')
 
-# Required positional argument
-parser.add_argument('pos_arg', type=int,
-                    help='A required integer positional argument')
+parser.add_argument('--integration_interval', type=str, nargs='?', const='1s', default='1s', help='Integration integral of SDR power measurement. Ex. 1s, 1m, etc.')
+parser.add_argument('--freq_min', type=str, nargs='?', const='980M', default='980M', help='Start frequency for power measurement. Ex. 980M, 1G')
+parser.add_argument('--freq_max', type=str, nargs='?', const='1020M', default='1020M', help='Stop frequency for power measurement. Ex. 980M, 1G')
 
-# Optional positional argument
-parser.add_argument('opt_pos_arg', type=int, nargs='?',
-                    help='An optional integer positional argument')
-
-# Optional argument
-parser.add_argument('--opt_arg', type=int,
-                    help='An optional integer argument')
-
-# Switch
-parser.add_argument('--switch', action='store_true',
-                    help='A boolean switch')
+parser.add_argument('--latitude', type=str, nargs='?', const='+44d13m29s', default='+44d13m29s', help='Latitude of location')
+parser.add_argument('--longitude', type=str, nargs='?', const='-76d29m52s', default='-76d29m52s', help='Longitude of location')
 
 args = parser.parse_args()
-
-print("Argument values:")
-print(args.pos_arg)
-print(args.opt_pos_arg)
-print(args.opt_arg)
-print(args.switch)
-
-if args.pos_arg > 10:
-    parser.error("pos_arg cannot be larger than 10")
+print(args)
