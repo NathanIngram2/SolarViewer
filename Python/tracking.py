@@ -5,10 +5,14 @@ Date: 2023-10-25
 Description: Tracking methods for the Solar Eclipse Viewer project for ENPH454 @ Queen's University, Kingston ON.
 """
 
+from utilities import Log
+
 # Move stepper motor to limit switch in both axis, return the altitude and azmuth (0,0)
 # Return: alt, az + offset
 def calibrate(offset):
+    Log.info("Starting Calibration...")
 
+    Log.info("Done Calibration.")
     return
     
 # Use astropy to calculate altitude and azmuth of sun
@@ -26,5 +30,7 @@ def getDifferenceDeg(antAlt, antAz, sunAlt, sunAz):
 # Move stepper
 # Return: null
 def moveStepper(diffAlt, diffAz):
+    Log.info("Starting moveStepper...")
 
+    Log.info("Done moveStepper...")
     return

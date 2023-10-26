@@ -12,6 +12,7 @@ import argparse
 # Method imports
 from dataCollection import measPower, writeData, plotPower
 from tracking import calibrate, getSunPosition, getDifferenceDeg, moveStepper
+from utilities import Log
 
 parser = argparse.ArgumentParser(
     description='Solar Viewer is designed to measure microwave radiation from the sun. This'
@@ -20,18 +21,24 @@ parser = argparse.ArgumentParser(
 parser.add_argument('stop_time', type=str, help='Time to stop collecting data. Format HH:MM')
 parser.add_argument('meas_interval', type=int, help='Time in minutes between measurements')
 parser.add_argument('--azimuth_offset', type=int, nargs='?', const=0, default=0,
-                    help='Specify primary lobes offset from horizontal in degrees (0 for horn, ~20 for dish)')
+                    help='Specify primary lobes offset from horizontal in degrees (0 for horn, ~20 for dish). '
+                         'Default = 0')
 parser.add_argument('--integration_interval', type=str, nargs='?', const='1s', default='1s',
-                    help='Integration integral of SDR power measurement. Ex. 1s, 1m, etc.')
+                    help='Integration integral of SDR power measurement. Ex. 1s, 1m, etc. Default = 1s')
 parser.add_argument('--freq_min', type=str, nargs='?', const='980M', default='980M',
-                    help='Start frequency for power measurement. Ex. 980M, 1G')
+                    help='Start frequency for power measurement. Ex. 980M, 1G. Default = 980M')
 parser.add_argument('--freq_max', type=str, nargs='?', const='1020M', default='1020M',
-                    help='Stop frequency for power measurement. Ex. 980M, 1G')
+                    help='Stop frequency for power measurement. Ex. 980M, 1G. Default = 1020M')
 parser.add_argument('--latitude', type=str, nargs='?', const='+44d13m29s', default='+44d13m29s',
-                    help='Latitude of location')
+                    help='Latitude of location. Default = +44d13m29s')
 parser.add_argument('--longitude', type=str, nargs='?', const='-76d29m52s', default='-76d29m52s',
-                    help='Longitude of location')
+                    help='Longitude of location. Default = -76d29m52s')
+parser.add_argument('--verbose', type=str, choices={"LOW", "MED", "HIGH"}, nargs='?', const="HIGH",
+                    default="HIGH", help="Select verbosity level of console output. Default = HIGH")
 args = parser.parse_args()
+
+# Setup Logging
+log = Log(args.verbose)
 
 # Constants and parsed arguments.
 LAT = args.latitude
