@@ -46,6 +46,8 @@ LON = args.longitude
 ANT_OFFSET_AZ = args.azimuth_offset
 STOP_TIME = args.stop_time
 MEAS_INTERVAL = args.meas_interval
+FREQ_MIN = args.freq_min
+FREQ_MAX = args.freq_max
 INTEGRATION_INTERVAL = args.integration_interval
 
 antAlt, antAz = calibrate(ANT_OFFSET_AZ)
@@ -60,7 +62,7 @@ while current_time < STOP_TIME:
     sunAlt, sunAz = getSunPosition(LAT, LON, current_time)
     diffAlt, diffAz = getDifferenceDeg(antAlt, antAz, sunAlt, sunAz)
     moveStepper(diffAlt, diffAz)
-    power = measPower(INTEGRATION_INTERVAL)
+    power = measPower(FREQ_MIN, FREQ_MAX, INTEGRATION_INTERVAL)
     writeData(current_time, power, sunAlt, sunAz)
     timeData.append(current_time)
     powerData.append(power)
