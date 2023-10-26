@@ -1,5 +1,4 @@
 # SolarViewer
-Central repo to hold the solar imaging related code
+Code for Solar Viewer Project for ENPH454
 
-
-Nathan testing push
+Created by: Will Conway, Devynn Garrow, Ben Graham, Jessica Guetre, Nathan Ingram
