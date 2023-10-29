@@ -6,11 +6,18 @@ Description: Additional utilities for the Solar Eclipse Viewer project for ENPH4
 """
 
 
-# Logging utility
 class Log:
+    """
+    Logging utility for the Solar Eclipse Viewer project.
+    """
     verbose = "HIGH"
 
     def __init__(self, verbosity):
+        """
+        Initialize the logging utility with a specified verbosity level.
+
+        :param verbosity: Verbosity level (LOW, MED, HIGH).
+        """
         Log.verbose = verbosity
 
     # Low priority info log

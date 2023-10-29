@@ -8,12 +8,19 @@ for ENPH454 @ Queen's University, Kingston ON.
 
 import subprocess as sp
 import pandas as pd
-
 from utilities import Log
 
 # collect measurement from SDR
 # Return: power (dB)
 def measPower(freq_min, freq_max, integration_interval):
+    """
+    Measure the power using rtl_power and return the mean power over all frequencies and time.
+
+    :param freq_min: Minimum frequency for power measurement.
+    :param freq_max: Maximum frequency for power measurement.
+    :param integration_interval: Integration interval for SDR power measurement.
+    :return: Mean power (dB) over all frequencies and time.
+    """
     Log.info("Starting measPower with min: " + freq_min + " max: " + freq_max + " integration interval: "
              + integration_interval)
 
@@ -35,6 +42,15 @@ def measPower(freq_min, freq_max, integration_interval):
     return mean_all_freq_and_time
 
 def writeData(current_time, power, sunAlt, sunAz):
+    """
+    Write data to a CSV file.
+
+    :param current_time: Current time of the measurement.
+    :param power: Power measurement.
+    :param sunAlt: Sun's altitude.
+    :param sunAz: Sun's azimuth.
+    :return: None
+    """
     Log.info("Starting writeData")
     Log.info("Writing " + current_time + " " + power + " " + sunAlt + " " + sunAz)
 
@@ -42,5 +58,12 @@ def writeData(current_time, power, sunAlt, sunAz):
     return
 
 def plotPower(timeData, powerData):
+    """
+    Plot power as a function of time.
+
+    :param timeData: List of time data.
+    :param powerData: List of power data.
+    :return: None
+    """
 
     return

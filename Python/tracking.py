@@ -9,19 +9,27 @@ import astropy.coordinates as coordinates
 from utilities import Log
 from astropy.coordinates import get_sun, AltAz, EarthLocation
 
-# Move stepper motor to limit switch in both axis, return the altitude and azimuth (0,0)
-# Return: alt, az + offset (float) = starting altitude and azimuth of antenna in degrees
 def calibrate(offset):
+    """
+    Calibrate the stepper motor to the limit switch and return the starting altitude and azimuth.
+
+    :param offset: Azimuth offset in degrees.
+    :return: Starting altitude and azimuth of the antenna in degrees. (0,0)
+    """
     Log.info("Starting Calibration...")
 
     Log.info("Done Calibration.")
     return
-    
-# Use astropy to calculate altitude and azmuth of sun
-# Params: lat (string) = latitude of measurement location in the form '+44d13m29s'
-#         lon (string) = longitude of measurement location in the form '-76d29m52s'
-# Return: alt, az (float) = relative sun altitude and azimuth in degrees
+
 def getSunPosition(lat, lon, current_time):
+    """
+    Get the altitude and azimuth of the sun relative to the measurement location.
+
+    :param lat: Latitude of the measurement location. (string)
+    :param lon: Longitude of the measurement location. (string)
+    :param current_time: Current time.
+    :return: Relative sun altitude and azimuth in degrees. (float)
+    """
     Log.info("Starting getSunPosition...")
 
     sunPos = get_sun(current_time) # coordinates of the sun in GCRS frame
@@ -33,13 +41,16 @@ def getSunPosition(lat, lon, current_time):
 
     return relSunPos.alt.deg, relSunPos.az.deg
     
-# Calculates how many degrees the stepper motor needs to move in each axis
-# Params: antAlt (float) = current altitude of the antenna in degrees
-#         antAz (float) = current azimuth of the antenna in degrees
-#         sunAlt (float) = current altitude of the sun in degrees
-#         sunAz (float) = current azimuth of the sun in degrees
-# Return: diffAlt, diffAz (float) = difference in altitude and azimuth between antenna and sun in degrees
 def getDifferenceDeg(antAlt, antAz, sunAlt, sunAz):
+    """
+    Calculate the difference in degrees between the antenna and the sun.
+
+    :param antAlt: Current altitude of the antenna in degrees. (float)
+    :param antAz: Current azimuth of the antenna in degrees. (float)
+    :param sunAlt: Current altitude of the sun in degrees. (float)
+    :param sunAz: Current azimuth of the sun in degrees. (float)
+    :return: Difference in altitude and azimuth between antenna and sun in degrees. (float)
+    """
     Log.info("Starting getDifferenceDeg...")
 
     diffAlt = sunAlt - antAlt
@@ -50,9 +61,14 @@ def getDifferenceDeg(antAlt, antAz, sunAlt, sunAz):
 
     return diffAlt, diffAz
 
-# Move stepper
-# Return: null
 def moveStepper(diffAlt, diffAz):
+    """
+    Move the stepper motor based on the difference in altitude and azimuth.
+
+    :param diffAlt: Difference in altitude between antenna and sun in degrees.
+    :param diffAz: Difference in azimuth between antenna and sun in degrees.
+    :return: None
+    """
     Log.info("Starting moveStepper...")
 
     Log.info("Done moveStepper...")
