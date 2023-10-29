@@ -26,9 +26,14 @@ def measPower(freq_min, freq_max, integration_interval):
     command = ('rtl_power -f ' + freq_min + ':' + freq_max + ':128k -i ' + integration_interval
                + ' -1 tmp/rtl_power_out.csv')
     Log.info("Executing command: " + command)
-    rst = sp.run([command], shell=True, capture_output=True,
-                 text=True)
+
     # TODO: Parse rst for error message or nan. Log error.
+    try:
+        rst = sp.run([command], shell=True, capture_output=True, text=True, check=True)
+    except sp.CalledProcessError as e:
+        Log.error("Error executing rtl_power command: " + str(e))
+        return 0.0
+
     Log.info("Done rtl_power. Reading CSV...")
     raw = pd.read_csv("tmp/rtl_power_out.csv")
     proc = raw.iloc[:, 0:4]
@@ -60,10 +65,13 @@ def writeData(current_time, power, sunAlt, sunAz):
         'SunAzimuth': [sunAz]
     })
 
-    data.to_csv('data.csv', mode='a', header=False, index=False)
+    try:
+        data.to_csv('data.csv', mode='a', header=False, index=False)
+    except IOError as e:
+        Log.error("Error writing to data.csv: " + str(e))
+        return
 
-    Log.info("Done writeData")
-    return
+    Log.info("End writeData")
 
 def plotPower(timeData, powerData):
     """
@@ -81,5 +89,5 @@ def plotPower(timeData, powerData):
     plt.title('Power vs Time')
     plt.show()
 
-    Log.info("Done plotPower")
+    Log.info("End plotPower")
     return
