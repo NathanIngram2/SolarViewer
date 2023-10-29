@@ -97,6 +97,8 @@ def moveStepper(diffAlt, diffAz):
 
     # Rotate the stepper motor for altitude and azimuth.
     rotateMotor(STEP, stepsAlt)
+    # TODO: Implement azimuthal control.
+    # rotateMotor(STEP, diffAz)
 
     Log.info("Stepper motor moved. Altitude change: " + diffAlt + " degrees, Azimuth change: " + diffAz + " degrees")
     Log.info("Done moveStepper")
