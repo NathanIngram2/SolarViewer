@@ -10,7 +10,7 @@ class Log:
     """
     Logging utility for the Solar Eclipse Viewer project.
     """
-    verbose = "HIGH"
+    VERBOSE = "HIGH"
 
     def __init__(self, verbosity):
         """
@@ -18,19 +18,19 @@ class Log:
 
         :param verbosity: Verbosity level (LOW, MED, HIGH).
         """
-        Log.verbose = verbosity
+        Log.VERBOSE = verbosity
 
     # Low priority info log
     @staticmethod
     def info(msg):
-        if Log.verbose == "HIGH":
+        if Log.VERBOSE == "HIGH":
             print("INFO: " + msg)
         return
 
     # High priority info log
     @staticmethod
     def warn(msg):
-        if Log.verbose == "HIGH" or Log.verbose == "MED":
+        if Log.VERBOSE == "HIGH" or Log.VERBOSE == "MED":
             print("WARN: " + msg)
         return
 

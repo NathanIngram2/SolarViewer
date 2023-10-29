@@ -8,6 +8,7 @@ Description: Main program for the Solar Eclipse Viewer project for ENPH454 @ Que
 # Package imports
 from astropy.time import Time
 import argparse
+import os
 
 # Method imports
 from dataCollection import measPower, writeData, plotPower
@@ -22,7 +23,7 @@ parser.add_argument('stop_time', type=str, help='Time to stop collecting data. F
 parser.add_argument('meas_interval', type=int, help='Time in minutes between measurements')
 parser.add_argument('--azimuth_offset', type=int, nargs='?', const=0, default=0,
                     help='Specify primary lobes offset from horizontal in degrees (0 for horn, ~20 for dish). '
-                         'Default = 0')
+                         'Default = 0', choices=range(-180, 181))
 parser.add_argument('--integration_interval', type=str, nargs='?', const='1s', default='1s',
                     help='Integration integral of SDR power measurement. Ex. 1s, 1m, etc. Default = 1s')
 parser.add_argument('--freq_min', type=str, nargs='?', const='980M', default='980M',
@@ -68,7 +69,7 @@ while current_time < STOP_TIME:
     powerData.append(power)
     plotPower(timeData, powerData)
 
-    wait(MEAS_INTERVAL)
+    os.wait(MEAS_INTERVAL)
 
 # Save plot
 
