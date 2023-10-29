@@ -8,7 +8,7 @@ Description: Tracking methods for the Solar Eclipse Viewer project for ENPH454 @
 import astropy.coordinates as coordinates
 from utilities import Log
 from astropy.coordinates import get_sun, AltAz, EarthLocation
-import RPi.GPIO as GPIO
+import pigpio as GPIO
 import time
 
 DIR = 10 # Direction pin from controller
@@ -16,10 +16,16 @@ STEP = 8 # Step pin from controller
 STEP_SIZE = 1.8 # Nema 23 Stepper Motor (1.8 step angle, 200 steps per revolutions)
 CW = 1 # 0/1 used to signify clockwise or counterclockwise.
 CCW = 0
-GPIO.setmode(GPIO.BOARD) # Setup pin layout on PI
-GPIO.setup(DIR, GPIO.OUT) # Establish Pins in software
-GPIO.setup(STEP, GPIO.OUT)
-GPIO.output(DIR, CW) # Direction of starting spin
+
+# Needs to be initalized before any other commands
+pi = GPIO.pi()
+if not pi.connected:
+    exit()
+
+#pi.set_mode(GPIO.BOARD) # Setup pin layout on PI
+pi.set_mode(DIR, GPIO.OUT) # Establish Pins in software
+pi.set_mode(STEP, GPIO.OUT)
+pi.write(DIR, CW) # Direction of starting spin
 
 def calibrate(offset):
     """
@@ -90,9 +96,9 @@ def moveStepper(diffAlt, diffAz):
     # Function to rotate stepper motor.
     def rotateMotor(pin, steps):
         for _ in range(steps):
-            GPIO.output(pin, GPIO.HIGH)
+            pi.write(pin, GPIO.HIGH)
             time.sleep(0.001)  # TODO: Adjust sleep time.
-            GPIO.output(pin, GPIO.LOW)
+            pi.write(pin, GPIO.LOW)
             time.sleep(0.001)  # TODO: Adjust sleep time.
 
     # Rotate the stepper motor for altitude and azimuth.
