@@ -8,10 +8,9 @@ for ENPH454 @ Queen's University, Kingston ON.
 
 import subprocess as sp
 import pandas as pd
+import matplotlib.pyplot as plt
 from utilities import Log
 
-# collect measurement from SDR
-# Return: power (dB)
 def measPower(freq_min, freq_max, integration_interval):
     """
     Measure the power using rtl_power and return the mean power over all frequencies and time.
@@ -54,6 +53,15 @@ def writeData(current_time, power, sunAlt, sunAz):
     Log.info("Starting writeData")
     Log.info("Writing " + current_time + " " + power + " " + sunAlt + " " + sunAz)
 
+    data = pd.DataFrame({
+        'Time': [current_time],
+        'Power': [power],
+        'SunAltitude': [sunAlt],
+        'SunAzimuth': [sunAz]
+    })
+
+    data.to_csv('data.csv', mode='a', header=False, index=False)
+
     Log.info("Done writeData")
     return
 
@@ -65,5 +73,13 @@ def plotPower(timeData, powerData):
     :param powerData: List of power data.
     :return: None
     """
+    Log.info("Starting plotPower")
 
+    plt.plot(timeData, powerData)
+    plt.xlabel('Time')
+    plt.ylabel('Power (dB)')
+    plt.title('Power vs Time')
+    plt.show()
+
+    Log.info("Done plotPower")
     return
