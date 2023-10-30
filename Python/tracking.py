@@ -7,6 +7,7 @@ Description: Tracking methods for the Solar Eclipse Viewer project for ENPH454 @
 
 import time
 import RPi.GPIO as GPIO
+from astropy.time import Time
 from astropy.coordinates import get_sun, AltAz, EarthLocation
 from utilities import Log
 
@@ -47,7 +48,7 @@ def calibrate(offset):
     Log.info("Done Calibration.")
     return 0, offset
 
-def getSunPosition(lat, lon, current_time):
+def getSunPosition(lat, lon):
     """
     Get the altitude and azimuth of the sun relative to the measurement location.
 
@@ -57,7 +58,7 @@ def getSunPosition(lat, lon, current_time):
     :return: Relative sun altitude and azimuth in degrees. (float)
     """
     Log.info("Starting getSunPosition...")
-
+    current_time = Time(time.time(), format='unix')
     sunPos = get_sun(current_time) # coordinates of the sun in GCRS frame
     measurementLoc = EarthLocation(lat = lat, lon = lon) # location of measurement
     relSunPos = sunPos.transform_to(AltAz(obstime = current_time, location = measurementLoc)) # sun position relative to measurement location
