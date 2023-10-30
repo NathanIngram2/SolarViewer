@@ -5,21 +5,26 @@ Date: 2023-10-25
 Description: Tracking methods for the Solar Eclipse Viewer project for ENPH454 @ Queen's University, Kingston ON.
 """
 
-import astropy.coordinates as coordinates
-from utilities import Log
-from astropy.coordinates import get_sun, AltAz, EarthLocation
-import RPi.GPIO as GPIO
 import time
+import pigpio as GPIO
+from astropy.coordinates import get_sun, AltAz, EarthLocation
+from utilities import Log
 
 DIR = 10 # Direction pin from controller
 STEP = 8 # Step pin from controller
 STEP_SIZE = 1.8 # Nema 23 Stepper Motor (1.8 step angle, 200 steps per revolutions)
 CW = 1 # 0/1 used to signify clockwise or counterclockwise.
 CCW = 0
-GPIO.setmode(GPIO.BOARD) # Setup pin layout on PI
-GPIO.setup(DIR, GPIO.OUT) # Establish Pins in software
-GPIO.setup(STEP, GPIO.OUT)
-GPIO.output(DIR, CW) # Direction of starting spin
+
+# Needs to be initalized before any other commands
+pi = GPIO.pi()
+if not pi.connected:
+    exit()
+
+#pi.set_mode(GPIO.BOARD) # Setup pin layout on PI
+pi.set_mode(DIR, GPIO.OUT) # Establish Pins in software
+pi.set_mode(STEP, GPIO.OUT)
+pi.write(DIR, CW) # Direction of starting spin
 
 def calibrate(offset):
     """
@@ -45,7 +50,7 @@ def getSunPosition(lat, lon, current_time):
     Log.info("Starting getSunPosition...")
 
     sunPos = get_sun(current_time) # coordinates of the sun in GCRS frame
-    measurementLoc = coordinates.EarthLocation(lat = lat, lon = lon) # location of measurement
+    measurementLoc = EarthLocation(lat = lat, lon = lon) # location of measurement
     relSunPos = sunPos.transform_to(AltAz(obstime = current_time, location = measurementLoc)) # sun position relative to measurement location
 
     Log.info("Time: " + current_time + " Sun Alt: " + relSunPos.alt.deg + " Sun Az: " + relSunPos.az.deg)
@@ -90,9 +95,9 @@ def moveStepper(diffAlt, diffAz):
     # Function to rotate stepper motor.
     def rotateMotor(pin, steps):
         for _ in range(steps):
-            GPIO.output(pin, GPIO.HIGH)
+            pi.write(pin, GPIO.HIGH)
             time.sleep(0.001)  # TODO: Adjust sleep time.
-            GPIO.output(pin, GPIO.LOW)
+            pi.write(pin, GPIO.LOW)
             time.sleep(0.001)  # TODO: Adjust sleep time.
 
     # Rotate the stepper motor for altitude and azimuth.
