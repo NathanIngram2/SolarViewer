@@ -12,8 +12,8 @@ from utilities import Log
 
 DIR = 10 # Direction pin from controller
 STEP = 8 # Step pin from controller
-LIM_ALT = 5 # Limit switch 1 input from Pi
-LIM_AZ = 6 # Limit switch 2 input from Pi
+LIM_ALT = 7 # Limit switch 1 input from Pi
+LIM_AZ = 11 # Limit switch 2 input from Pi
 STEP_SIZE = 1.8 # Nema 23 Stepper Motor (1.8 step angle, 200 steps per revolutions)
 CALIBRATION_ROTATION_SIZE = 1 # Number of degrees to move each step during calibration
 CW = 1 # 0/1 used to signify clockwise or counterclockwise.
