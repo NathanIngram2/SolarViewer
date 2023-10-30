@@ -10,9 +10,15 @@ Please include more into the list if added to any file in the workspace:
 pip install --upgrade pip (optional)
 
 pip install astropy
+
 pip install pandas
+
 pip install matplotlib
+
 pip install argparse
+
 pip install numpy
+
 pip install pigpio
+
 -----------------------------------------------------------------------------
