@@ -104,9 +104,9 @@ def moveStepper(diffAlt, diffAz):
     # Function to rotate stepper motor.
     def rotateMotor(pin, steps):
         for _ in range(steps):
-            pi.write(pin, GPIO.HIGH)
+            GPIO.output(pin, GPIO.HIGH)
             time.sleep(0.001)  # TODO: Adjust sleep time.
-            pi.write(pin, GPIO.LOW)
+            GPIO.output(pin, GPIO.LOW)
             time.sleep(0.001)  # TODO: Adjust sleep time.
 
     # Rotate the stepper motor for altitude and azimuth.
