@@ -19,13 +19,12 @@ CALIBRATION_ROTATION_SIZE = 1 # Number of degrees to move each step during calib
 CW = 1 # 0/1 used to signify clockwise or counterclockwise.
 CCW = 0
 
-#pi.set_mode(GPIO.BOARD) # Setup pin layout on PI
 GPIO.setmode(GPIO.BOARD)
 GPIO.setup(DIR, GPIO.OUT) # Establish Pins in software
 GPIO.setup(STEP, GPIO.OUT)
 GPIO.setup(LIM_ALT, GPIO.IN, pull_up_down=GPIO.PUD_DOWN)
 GPIO.setup(LIM_AZ, GPIO.IN, pull_up_down=GPIO.PUD_DOWN)
-GPIO.write(DIR, CW) # Direction of starting spin
+GPIO.output(DIR, CW) # Direction of starting spin
 
 def calibrate(offset):
     """
