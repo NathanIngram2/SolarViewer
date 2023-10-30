@@ -5,11 +5,10 @@ Date: 2023-10-25
 Description: Tracking methods for the Solar Eclipse Viewer project for ENPH454 @ Queen's University, Kingston ON.
 """
 
-import astropy.coordinates as coordinates
-from utilities import Log
-from astropy.coordinates import get_sun, AltAz, EarthLocation
-import RPi.GPIO as GPIO
 import time
+import RPi.GPIO as GPIO
+from astropy.coordinates import get_sun, AltAz, EarthLocation
+from utilities import Log
 
 DIR = 10 # Direction pin from controller
 STEP = 8 # Step pin from controller
@@ -45,7 +44,7 @@ def getSunPosition(lat, lon, current_time):
     Log.info("Starting getSunPosition...")
 
     sunPos = get_sun(current_time) # coordinates of the sun in GCRS frame
-    measurementLoc = coordinates.EarthLocation(lat = lat, lon = lon) # location of measurement
+    measurementLoc = EarthLocation(lat = lat, lon = lon) # location of measurement
     relSunPos = sunPos.transform_to(AltAz(obstime = current_time, location = measurementLoc)) # sun position relative to measurement location
 
     Log.info("Time: " + current_time + " Sun Alt: " + relSunPos.alt.deg + " Sun Az: " + relSunPos.az.deg)
