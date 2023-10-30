@@ -6,7 +6,7 @@ Description: Tracking methods for the Solar Eclipse Viewer project for ENPH454 @
 """
 
 import time
-import RPi.GPIO as GPIO
+import pigpio
 from astropy.coordinates import get_sun, AltAz, EarthLocation
 from utilities import Log
 
@@ -15,10 +15,6 @@ STEP = 8 # Step pin from controller
 STEP_SIZE = 1.8 # Nema 23 Stepper Motor (1.8 step angle, 200 steps per revolutions)
 CW = 1 # 0/1 used to signify clockwise or counterclockwise.
 CCW = 0
-GPIO.setmode(GPIO.BOARD) # Setup pin layout on PI
-GPIO.setup(DIR, GPIO.OUT) # Establish Pins in software
-GPIO.setup(STEP, GPIO.OUT)
-GPIO.output(DIR, CW) # Direction of starting spin
 
 def calibrate(offset):
     """
@@ -82,6 +78,16 @@ def moveStepper(diffAlt, diffAz):
     """
     Log.info("Starting moveStepper")
 
+    # Connect to the pigpio daemon.
+    pi = pigpio.pi()
+
+    # Set up GPIO pins.
+    pi.set_mode(DIR, pigpio.OUTPUT)
+    pi.set_mode(STEP, pigpio.OUTPUT)
+
+    # Set the direction (CW or CCW).
+    pi.write(DIR, CW)
+
     # Number of steps required for difference in angles.
     stepsAlt = int(diffAlt / STEP_SIZE)
     stepsAz = int(diffAz / STEP_SIZE)
@@ -89,15 +95,21 @@ def moveStepper(diffAlt, diffAz):
     # Function to rotate stepper motor.
     def rotateMotor(pin, steps):
         for _ in range(steps):
-            GPIO.output(pin, GPIO.HIGH)
-            time.sleep(0.001)  # TODO: Adjust sleep time.
-            GPIO.output(pin, GPIO.LOW)
+             # Activate the step (HIGH).
+            pi.write(STEP, 1)
+             # Deactivate the step (LOW).
+            pi.write(STEP, 0)
+            # Wait for falling edge (step pulse).
+            pi.wait_for_edge(STEP, pigpio.FALLING_EDGE)
             time.sleep(0.001)  # TODO: Adjust sleep time.
 
     # Rotate the stepper motor for altitude and azimuth.
-    rotateMotor(STEP, stepsAlt)
+    rotateMotor(stepsAlt)
     # TODO: Implement azimuthal control.
-    # rotateMotor(STEP, diffAz)
+    # rotateMotor(stepsAz)
+
+    # Disconnect from the pigpio daemon.
+    pi.stop()
 
     Log.info("Stepper motor moved. Altitude change: " + diffAlt + " degrees, Azimuth change: " + diffAz + " degrees")
     Log.info("Done moveStepper")
