@@ -22,8 +22,8 @@ CCW = 0
 GPIO.setmode(GPIO.BOARD)
 GPIO.setup(DIR, GPIO.OUT) # Establish Pins in software
 GPIO.setup(STEP, GPIO.OUT)
-GPIO.setup(LIM_ALT, GPIO.IN, pull_up_down=GPIO.PUD_DOWN)
-GPIO.setup(LIM_AZ, GPIO.IN, pull_up_down=GPIO.PUD_DOWN)
+GPIO.setup(LIM_ALT, GPIO.IN)
+GPIO.setup(LIM_AZ, GPIO.IN)
 GPIO.output(DIR, CW) # Direction of starting spin
 
 def calibrate(offset):
