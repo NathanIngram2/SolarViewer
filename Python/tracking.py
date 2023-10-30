@@ -12,7 +12,10 @@ from utilities import Log
 
 DIR = 10 # Direction pin from controller
 STEP = 8 # Step pin from controller
+LIM_ALT = 5 # Limit switch 1 input from Pi
+LIM_AZ = 6 # Limit switch 2 input from Pi
 STEP_SIZE = 1.8 # Nema 23 Stepper Motor (1.8 step angle, 200 steps per revolutions)
+CALIBRATION_ROTATION_SIZE = 1 # Number of degrees to move each step during calibration
 CW = 1 # 0/1 used to signify clockwise or counterclockwise.
 CCW = 0
 
@@ -24,6 +27,8 @@ if not pi.connected:
 #pi.set_mode(GPIO.BOARD) # Setup pin layout on PI
 pi.set_mode(DIR, GPIO.OUT) # Establish Pins in software
 pi.set_mode(STEP, GPIO.OUT)
+pi.setup(LIM_ALT, GPIO.IN, pull_up_down=GPIO.PUD_DOWN)
+pi.setup(LIM_AZ, GPIO.IN, pull_up_down=GPIO.PUD_DOWN)
 pi.write(DIR, CW) # Direction of starting spin
 
 def calibrate(offset):
@@ -34,9 +39,18 @@ def calibrate(offset):
     :return: Starting altitude and azimuth of the antenna in degrees. (0,0)
     """
     Log.info("Starting Calibration...")
+    pi.write(DIR, CCW)
+    # Altitude calibration
+    while(pi.read(LIM_ALT) != GPIO.HIGH):
+        moveStepper(CALIBRATION_ROTATION_SIZE, 0)
 
+    # Azimuth calibration
+    while(pi.read(LIM_AZ) != GPIO.HIGH):
+        moveStepper(0, CALIBRATION_ROTATION_SIZE)
+
+    pi.write(DIR, CW)
     Log.info("Done Calibration.")
-    return
+    return 0, offset
 
 def getSunPosition(lat, lon, current_time):
     """
