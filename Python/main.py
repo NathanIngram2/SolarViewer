@@ -6,7 +6,6 @@ Description: Main program for the Solar Eclipse Viewer project for ENPH454 @ Que
 """
 
 # Package imports
-from astropy.time import Time
 import argparse
 import time
 
@@ -68,7 +67,6 @@ timeData = []
 powerData = []
 
 while current_time < end_time:
-    current_time = Time.now()
     sunAlt, sunAz = getSunPosition(LAT, LON)
     diffAlt, diffAz = getDifferenceDeg(antAlt, antAz, sunAlt, sunAz)
     moveStepper(diffAlt, diffAz)
@@ -79,6 +77,7 @@ while current_time < end_time:
     plotPower(timeData, powerData)
 
     time.sleep(MEAS_INTERVAL.tm_min * 60) # min to sec
+    current_time = time.localtime()
 
 # Save plot
 
