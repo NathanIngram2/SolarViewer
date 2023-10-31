@@ -8,7 +8,7 @@ Description: Main program for the Solar Eclipse Viewer project for ENPH454 @ Que
 # Package imports
 from astropy.time import Time
 import argparse
-import os
+import time
 
 # Method imports
 from dataCollection import measPower, writeData, plotPower
@@ -19,8 +19,8 @@ parser = argparse.ArgumentParser(
     description='Solar Viewer is designed to measure microwave radiation from the sun. This'
                 ' program controls tracking the sun, collecting data, and data analysis.')
 
-parser.add_argument('stop_time', type=str, help='Time to stop collecting data. Format HH:MM')
-parser.add_argument('meas_interval', type=int, help='Time in minutes between measurements')
+parser.add_argument('stop_time', type=str, help='Time to stop taking data. Format HH:MM - HH(00-23):MM(0-59)')
+parser.add_argument('meas_interval', type=str, help='Time in minutes between measurements. Format MM(0-59)')
 parser.add_argument('--azimuth_offset', type=int, nargs='?', const=0, default=0,
                     help='Specify primary lobes offset from horizontal in degrees (0 for horn, ~20 for dish). '
                          'Default = 0')
@@ -45,20 +45,29 @@ log = Log(args.verbose)
 LAT = args.latitude
 LON = args.longitude
 ANT_OFFSET_AZ = args.azimuth_offset
-STOP_TIME = args.stop_time
-MEAS_INTERVAL = args.meas_interval
+
+STOP_TIME = time.strptime(args.stop_time, '%H:%M') # 24 hour clock format
+end_time = time.strftime("%H:%M:%S", STOP_TIME)
+print(end_time)
+
+MEAS_INTERVAL = time.strptime(args.meas_interval, '%M')
+time_interval = time.strftime("%H:%M:%S", MEAS_INTERVAL)
+print(time_interval)
+
+t = time.localtime()
+current_time = time.strftime("%H:%M:%S", t)
+print(current_time)
+
 FREQ_MIN = args.freq_min
 FREQ_MAX = args.freq_max
 INTEGRATION_INTERVAL = args.integration_interval
 
-antAlt, antAz = calibrate(ANT_OFFSET_AZ)
+#antAlt, antAz = calibrate(ANT_OFFSET_AZ)
 
 timeData = []
 powerData = []
 
-current_time = Time.now()
-
-while current_time < STOP_TIME:
+while current_time < end_time:
     current_time = Time.now()
     sunAlt, sunAz = getSunPosition(LAT, LON)
     diffAlt, diffAz = getDifferenceDeg(antAlt, antAz, sunAlt, sunAz)
@@ -69,7 +78,7 @@ while current_time < STOP_TIME:
     powerData.append(power)
     plotPower(timeData, powerData)
 
-    os.wait(MEAS_INTERVAL)
+    time.sleep(MEAS_INTERVAL.tm_min * 60) # min to sec
 
 # Save plot
 
