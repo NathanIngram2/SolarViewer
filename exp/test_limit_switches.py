@@ -27,15 +27,15 @@ GPIO.output(DIR_AZ, CCW) # Direction of calibration spin for azimuth stepper mot
 GPIO.output(DIR_ALT, CCW) # Direction of calibration spin for altitude stepper motor
 
 def calibrate(offset):
-	"""
-	Calibrate the stepper motor to the limit switch and return the starting altitude and azimuth.
+    """
+    Calibrate the stepper motor to the limit switch and return the starting altitude and azimuth.
 
-	:param offset: Azimuth offset in degrees.
-	:return: Starting altitude and azimuth of the antenna in degrees. (0,0)
-	"""
-	print("Starting Calibration...")
-	# Altitude calibration
-	while(GPIO.input(LIM_ALT) != GPIO.HIGH):
+    :param offset: Azimuth offset in degrees.
+    :return: Starting altitude and azimuth of the antenna in degrees. (0,0)
+    """
+    print("Starting Calibration...")
+    # Altitude calibration
+    while GPIO.input(LIM_ALT) != GPIO.HIGH:
         # Set one coil winding to high
         GPIO.output(STEP_ALT,GPIO.HIGH)
         # Allow it to get there.
@@ -43,12 +43,12 @@ def calibrate(offset):
         # Set coil winding to low
         GPIO.output(STEP_ALT,GPIO.LOW)
         sleep(.005) # Dictates how fast stepper motor will run
-		
 
-	sleep(5) # Dictates how fast stepper motor will run
 
-	# Azimuth calibration
-	while(GPIO.input(LIM_AZ) != GPIO.HIGH):
+    sleep(5) # Dictates how fast stepper motor will run
+
+    # Azimuth calibration
+    while GPIO.input(LIM_AZ) != GPIO.HIGH:
         # Set one coil winding to high
         GPIO.output(STEP_AZ,GPIO.HIGH)
         # Allow it to get there.
@@ -57,19 +57,19 @@ def calibrate(offset):
         GPIO.output(STEP_AZ,GPIO.LOW)
         sleep(.005) # Dictates how fast stepper motor will run
 
-	GPIO.output(DIR_AZ, CW)
+    GPIO.output(DIR_AZ, CW)
     GPIO.output(DIR_ALT, CW)
-	return 0, offset
+    return 0, offset
 
 
 try:
-	calibrate(0)
-	
+    calibrate(0)
+
 
 # Once finished clean everything up
 except KeyboardInterrupt:
-	print("cleanup")
-	GPIO.cleanup()
+    print("cleanup")
+    GPIO.cleanup()
 
 
 
