@@ -59,11 +59,12 @@ def getSunPosition(lat, lon):
     """
     Log.info("Starting getSunPosition...")
     current_time = Time(time.time(), format='unix')
+    current_time.format= "iso"
     sunPos = get_sun(current_time) # coordinates of the sun in GCRS frame
     measurementLoc = EarthLocation(lat = lat, lon = lon) # location of measurement
     relSunPos = sunPos.transform_to(AltAz(obstime = current_time, location = measurementLoc)) # sun position relative to measurement location
 
-    Log.info("Time: " + current_time + " Sun Alt: " + relSunPos.alt.deg + " Sun Az: " + relSunPos.az.deg)
+    Log.info("Time: " + str(current_time) + " Sun Alt: " + str(relSunPos.alt.deg) + " Sun Az: " + str(relSunPos.az.deg))
     Log.info("Done getSunPosition.")
 
     return relSunPos.alt.deg, relSunPos.az.deg
