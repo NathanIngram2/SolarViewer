@@ -1,8 +1,8 @@
-import keyboard as kb
+import getch
 import time
 import RPi.GPIO as GPIO
 
-from ...Python.dataCollection import measPower
+#from ...Python.dataCollection import measPower
 
 # Direction pin from controller
 DIR = 10
@@ -21,8 +21,12 @@ print("Enter w-a-s-d for respective movement of the antenna direction.")
 print("W: increase altitude, A: rotate CCW, S: decrease altitude, D: rotate CW")
 
 try:
-    while 1:
-        while kb.is_pressed('w'):
+    while True:
+
+        keyPressed = getch()
+
+        if keyPressed == 'w':
+            print("Pressed W")
             GPIO.output(DIR,CW)
             # Set one coil winding to high
             GPIO.output(STEP,GPIO.HIGH)
@@ -32,7 +36,7 @@ try:
             GPIO.output(STEP,GPIO.LOW)
             time.sleep(.005) # Dictates how fast stepper motor will run
 
-        while kb.is_pressed('a'):
+        if keyPressed == 'a':
             GPIO.output(DIR, CCW)
             # Set one coil winding to high
             GPIO.output(STEP,GPIO.HIGH)
@@ -42,7 +46,7 @@ try:
             GPIO.output(STEP,GPIO.LOW)
             time.sleep(.005) # Dictates how fast stepper motor will run
 
-        while kb.is_pressed('s'):
+        if keyPressed == 's':
             GPIO.output(DIR, CCW)
             # Set one coil winding to high
             GPIO.output(STEP,GPIO.HIGH)
@@ -52,7 +56,7 @@ try:
             GPIO.output(STEP,GPIO.LOW)
             time.sleep(.005) # Dictates how fast stepper motor will run
 
-        while kb.is_pressed('d'):
+        if keyPressed == 'd':
             GPIO.output(DIR, CW)
             # Set one coil winding to high
             GPIO.output(STEP,GPIO.HIGH)
@@ -62,11 +66,11 @@ try:
             GPIO.output(STEP,GPIO.LOW)
             time.sleep(.005) # Dictates how fast stepper motor will run
 
-        if kb.is_pressed('m'):
+        if keyPressed == 'm':
             freq_min = int(input("What is the min frequency?"))
             freq_max = int(input("What is the max frequency?"))
             integration_interval = int(input("How long would you like this averaged over (reccomended <3sec)"))
-            measPower(freq_min, freq_max, integration_interval)
+            #measPower(freq_min, freq_max, integration_interval)
 
 except KeyboardInterrupt:
     print("cleanup")
