@@ -22,6 +22,11 @@ CALIBRATION_ROTATION_SIZE = 1 # Number of degrees to move each step during calib
 CW = 1 # 0/1 used to signify clockwise or counterclockwise.
 CCW = 0
 
+LOWER_LIM_ALT = 0
+UPPER_LIM_ALT = 80
+LOWER_LIM_AZ = 0
+UPPER_LIM_AZ = 180
+
 GPIO.setmode(GPIO.BOARD)
 GPIO.setup(DIR_AZ, GPIO.OUT) # Establish Pins in software
 GPIO.setup(STEP_AZ, GPIO.OUT)
@@ -85,9 +90,26 @@ def getDifferenceDeg(antAlt, antAz, sunAlt, sunAz):
     :return: Difference in altitude and azimuth between antenna and sun in degrees. (float)
     """
     Log.info("Starting getDifferenceDeg...")
+    if(sunAlt >= LOWER_LIM_ALT):
+        if(sunAlt <= UPPER_LIM_ALT):
+            diffAlt = sunAlt - antAlt
+        else:
+            diffAlt = UPPER_LIM_ALT - antAlt
+            Log.info("Sun Alt = " + sunAlt +" greater than Altitude Upper Limit = " + UPPER_LIM_ALT + ", moving to upper limit")
+    else:
+        diffAlt = antAlt - LOWER_LIM_ALT
+        Log.info("Sun Alt = " + sunAlt +" lower than Altitude Lower Limit = " + LOWER_LIM_ALT + ", moving to lower limit")
 
-    diffAlt = sunAlt - antAlt
-    diffAz = sunAz - antAz
+
+    if(sunAz >= LOWER_LIM_AZ):
+        if(sunAz <= UPPER_LIM_AZ):
+            diffAz = sunAz - antAz
+        else:
+            diffAz = UPPER_LIM_AZ - antAz
+            Log.info("Sun Az = " + sunAz +" greater than Azimuth Upper Limit = " + UPPER_LIM_AZ + ", moving to upper limit")
+    else:
+        diffAz = antAz - LOWER_LIM_AZ
+        Log.info("Sun Az = " + sunAz +" lower than Azimuth Lower Limit = " + LOWER_LIM_AZ + ", moving to lower limit")
 
     Log.info("Degrees to move in altitude: " + diffAlt + " Degrees to move in azimuth: " + diffAz)
     Log.info("Done getDifferenceDeg.")
