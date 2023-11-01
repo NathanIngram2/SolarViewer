@@ -1,4 +1,4 @@
-import getch
+from getch import getch
 import time
 import RPi.GPIO as GPIO
 
@@ -20,59 +20,63 @@ GPIO.setup(STEP, GPIO.OUT)
 print("Enter w-a-s-d for respective movement of the antenna direction.")
 print("W: increase altitude, A: rotate CCW, S: decrease altitude, D: rotate CW")
 
-try:
-    while True:
+while True:
 
-        keyPressed = getch()
+    keyPressed = getch()
 
-        if keyPressed == 'w':
-            print("Pressed W")
-            GPIO.output(DIR,CW)
-            # Set one coil winding to high
-            GPIO.output(STEP,GPIO.HIGH)
-            # Allow it to get there.
-            time.sleep(.005) # Dictates how fast stepper motor will run
-            # Set coil winding to low
-            GPIO.output(STEP,GPIO.LOW)
-            time.sleep(.005) # Dictates how fast stepper motor will run
+    if keyPressed == 'w':
+        print("Increasing altitude")
+        GPIO.output(DIR,CW)
+        # Set one coil winding to high
+        GPIO.output(STEP,GPIO.HIGH)
+        # Allow it to get there.
+        time.sleep(.005) # Dictates how fast stepper motor will run
+        # Set coil winding to low
+        GPIO.output(STEP,GPIO.LOW)
+        time.sleep(.005) # Dictates how fast stepper motor will run
 
-        if keyPressed == 'a':
-            GPIO.output(DIR, CCW)
-            # Set one coil winding to high
-            GPIO.output(STEP,GPIO.HIGH)
-            # Allow it to get there.
-            time.sleep(.005) # Dictates how fast stepper motor will run
-            # Set coil winding to low
-            GPIO.output(STEP,GPIO.LOW)
-            time.sleep(.005) # Dictates how fast stepper motor will run
+    if keyPressed == 'a':
+        print("CCW rotation")
+        GPIO.output(DIR, CCW)
+        # Set one coil winding to high
+        GPIO.output(STEP,GPIO.HIGH)
+        # Allow it to get there.
+        time.sleep(.005) # Dictates how fast stepper motor will run
+        # Set coil winding to low
+        GPIO.output(STEP,GPIO.LOW)
+        time.sleep(.005) # Dictates how fast stepper motor will run
 
-        if keyPressed == 's':
-            GPIO.output(DIR, CCW)
-            # Set one coil winding to high
-            GPIO.output(STEP,GPIO.HIGH)
-            # Allow it to get there.
-            time.sleep(.005) # Dictates how fast stepper motor will run
-            # Set coil winding to low
-            GPIO.output(STEP,GPIO.LOW)
-            time.sleep(.005) # Dictates how fast stepper motor will run
+    if keyPressed == 's':
+        print("Decreasing altitude")
+        GPIO.output(DIR, CCW)
+        # Set one coil winding to high
+        GPIO.output(STEP,GPIO.HIGH)
+        # Allow it to get there.
+        time.sleep(.005) # Dictates how fast stepper motor will run
+        # Set coil winding to low
+        GPIO.output(STEP,GPIO.LOW)
+        time.sleep(.005) # Dictates how fast stepper motor will run
 
-        if keyPressed == 'd':
-            GPIO.output(DIR, CW)
-            # Set one coil winding to high
-            GPIO.output(STEP,GPIO.HIGH)
-            # Allow it to get there.
-            time.sleep(.005) # Dictates how fast stepper motor will run
-            # Set coil winding to low
-            GPIO.output(STEP,GPIO.LOW)
-            time.sleep(.005) # Dictates how fast stepper motor will run
+    if keyPressed == 'd':
+        print("CW rotation")
+        GPIO.output(DIR, CW)
+        # Set one coil winding to high
+        GPIO.output(STEP,GPIO.HIGH)
+        # Allow it to get there.
+        time.sleep(.005) # Dictates how fast stepper motor will run
+        # Set coil winding to low
+        GPIO.output(STEP,GPIO.LOW)
+        time.sleep(.005) # Dictates how fast stepper motor will run
 
-        if keyPressed == 'm':
-            freq_min = int(input("What is the min frequency?"))
-            freq_max = int(input("What is the max frequency?"))
-            integration_interval = int(input("How long would you like this averaged over (reccomended <3sec)"))
-            #measPower(freq_min, freq_max, integration_interval)
+    if keyPressed == 'm':
+        freq_min = int(input("What is the min frequency?"))
+        freq_max = int(input("What is the max frequency?"))
+        integration_interval = int(input("How long would you like this averaged over (reccomended <3sec)"))
+        #measPower(freq_min, freq_max, integration_interval)
 
-except KeyboardInterrupt:
-    print("cleanup")
-    GPIO.cleanup()
+    if keyPressed == 'b':
+        break
+
+print("cleanup")
+GPIO.cleanup()
     
