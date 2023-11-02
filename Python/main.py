@@ -45,8 +45,8 @@ LAT = args.latitude
 LON = args.longitude
 ANT_OFFSET_AZ = args.azimuth_offset
 
-STOP_TIME = time.strptime(args.stop_time, '%H:%M') # 24 hour clock format
-end_time = time.strftime("%H:%M:%S", STOP_TIME)
+end_time = time.localtime() + args.stop_time*60
+#end_time = time.strftime("%H:%M:%S", STOP_TIME)
 print(end_time)
 
 MEAS_INTERVAL = time.strptime(args.meas_interval, '%M')
@@ -61,7 +61,7 @@ FREQ_MIN = args.freq_min
 FREQ_MAX = args.freq_max
 INTEGRATION_INTERVAL = args.integration_interval
 
-#antAlt, antAz = calibrate(ANT_OFFSET_AZ)
+antAlt, antAz = calibrate(ANT_OFFSET_AZ)
 
 timeData = []
 powerData = []
