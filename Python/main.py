@@ -8,6 +8,7 @@ Description: Main program for the Solar Eclipse Viewer project for ENPH454 @ Que
 # Package imports
 import argparse
 import time
+import datetime
 
 # Method imports
 from dataCollection import measPower, writeData, plotPower
@@ -18,7 +19,7 @@ parser = argparse.ArgumentParser(
     description='Solar Viewer is designed to measure microwave radiation from the sun. This'
                 ' program controls tracking the sun, collecting data, and data analysis.')
 
-parser.add_argument('stop_time', type=str, help='Time to stop taking data. Format HH:MM - HH(00-23):MM(0-59)')
+parser.add_argument('duration', type=str, help='Duration of elapsed time taking data. Format HH:MM - HH(00-23):MM(00-59)')
 parser.add_argument('meas_interval', type=str, help='Time in minutes between measurements. Format MM(0-59)')
 parser.add_argument('--azimuth_offset', type=int, nargs='?', const=0, default=0,
                     help='Specify primary lobes offset from horizontal in degrees (0 for horn, ~20 for dish). '
@@ -45,17 +46,14 @@ LAT = args.latitude
 LON = args.longitude
 ANT_OFFSET_AZ = args.azimuth_offset
 
-end_time = time.localtime() + args.stop_time*60
-#end_time = time.strftime("%H:%M:%S", STOP_TIME)
-print(end_time)
+DUR = args.duration
+duration_hrs = int(DUR.split(":")[0])
+duration_mins = int(DUR.split(":")[1])
+current_time  = datetime.datetime.now(tz=None)
+duration_hrs_min = datetime.timedelta(hours=duration_hrs, minutes=duration_mins)
+end_time = current_time + duration_hrs_min
 
-MEAS_INTERVAL = time.strptime(args.meas_interval, '%M')
-time_interval = time.strftime("%H:%M:%S", MEAS_INTERVAL)
-print(time_interval)
-
-t = time.localtime()
-current_time = time.strftime("%H:%M:%S", t)
-print(current_time)
+meas_interval = (int(args.meas_interval) * 60)
 
 FREQ_MIN = args.freq_min
 FREQ_MAX = args.freq_max
@@ -76,8 +74,8 @@ while current_time < end_time:
     powerData.append(power)
     plotPower(timeData, powerData)
 
-    time.sleep(MEAS_INTERVAL.tm_min * 60) # min to sec
-    current_time = time.localtime()
+    time.sleep(meas_interval) # min to sec
+    current_time = datetime.datetime.now(tz=None)
 
 # Save plot
 
