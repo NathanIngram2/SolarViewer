@@ -2,7 +2,7 @@ from getch import getch
 import time
 import RPi.GPIO as GPIO
 
-#from ...Python.dataCollection import measPower
+from measPower_dummy import measPower
 
 # Direction pin from controller
 DIR = 10
@@ -77,7 +77,7 @@ while True:
         freq_min = int(input("What is the min frequency?"))
         freq_max = int(input("What is the max frequency?"))
         integration_interval = int(input("How long would you like this averaged over (reccomended <3sec)"))
-        #measPower(freq_min, freq_max, integration_interval)
+        measPower(freq_min, freq_max, integration_interval)
 
     if keyPressed == 'b':
         break
