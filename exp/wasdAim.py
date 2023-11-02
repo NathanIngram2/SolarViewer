@@ -8,6 +8,11 @@ import RPi.GPIO as GPIO
 DIR = 10
 # Step pin from controller
 STEP = 8
+DIR_AZ = 10 # Azimuth stepper motor direction pin from controller
+STEP_AZ = 8 # Azimuth stepper motor pin from controller
+DIR_ALT = 13 # Altitude stepper motor direction pin from controller
+STEP_ALT = 15 # Altitude stepper motor direction pin from controller
+
 # 0/1 used to signify clockwise or counterclockwise.
 CW = 1
 CCW = 0
@@ -26,46 +31,46 @@ while True:
 
     if keyPressed == 'w':
         print("Increasing altitude")
-        GPIO.output(DIR,CW)
+        GPIO.output(DIR_ALT,CW)
         # Set one coil winding to high
-        GPIO.output(STEP,GPIO.HIGH)
+        GPIO.output(STEP_ALT,GPIO.HIGH)
         # Allow it to get there.
         time.sleep(.005) # Dictates how fast stepper motor will run
         # Set coil winding to low
-        GPIO.output(STEP,GPIO.LOW)
+        GPIO.output(STEP_ALT,GPIO.LOW)
         time.sleep(.005) # Dictates how fast stepper motor will run
 
     if keyPressed == 'a':
         print("CCW rotation")
-        GPIO.output(DIR, CCW)
+        GPIO.output(DIR_AZ, CCW)
         # Set one coil winding to high
-        GPIO.output(STEP,GPIO.HIGH)
+        GPIO.output(STEP_AZ,GPIO.HIGH)
         # Allow it to get there.
         time.sleep(.005) # Dictates how fast stepper motor will run
         # Set coil winding to low
-        GPIO.output(STEP,GPIO.LOW)
+        GPIO.output(STEP_AZ,GPIO.LOW)
         time.sleep(.005) # Dictates how fast stepper motor will run
 
     if keyPressed == 's':
         print("Decreasing altitude")
-        GPIO.output(DIR, CCW)
+        GPIO.output(DIR_ALT, CCW)
         # Set one coil winding to high
-        GPIO.output(STEP,GPIO.HIGH)
+        GPIO.output(STEP_ALT,GPIO.HIGH)
         # Allow it to get there.
         time.sleep(.005) # Dictates how fast stepper motor will run
         # Set coil winding to low
-        GPIO.output(STEP,GPIO.LOW)
+        GPIO.output(STEP_ALT,GPIO.LOW)
         time.sleep(.005) # Dictates how fast stepper motor will run
 
     if keyPressed == 'd':
         print("CW rotation")
-        GPIO.output(DIR, CW)
+        GPIO.output(DIR_AZ, CW)
         # Set one coil winding to high
-        GPIO.output(STEP,GPIO.HIGH)
+        GPIO.output(STEP_AZ,GPIO.HIGH)
         # Allow it to get there.
         time.sleep(.005) # Dictates how fast stepper motor will run
         # Set coil winding to low
-        GPIO.output(STEP,GPIO.LOW)
+        GPIO.output(STEP_AZ,GPIO.LOW)
         time.sleep(.005) # Dictates how fast stepper motor will run
 
     if keyPressed == 'm':
