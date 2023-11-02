@@ -18,7 +18,7 @@ STEP_ALT = 15 # Altitude stepper motor direction pin from controller
 LIM_ALT = 7 # Limit switch 1 input from Pi
 LIM_AZ = 11 # Limit switch 2 input from Pi
 STEP_SIZE = 1.8 # Nema 23 Stepper Motor (1.8 step angle, 200 steps per revolutions)
-CALIBRATION_ROTATION_SIZE = 1 # Number of degrees to move each step during calibration
+CALIBRATION_ROTATION_SIZE = 2 # Number of degrees to move each step during calibration
 CW = 1 # 0/1 used to signify clockwise or counterclockwise.
 CCW = 0
 
@@ -95,10 +95,10 @@ def getDifferenceDeg(antAlt, antAz, sunAlt, sunAz):
             diffAlt = sunAlt - antAlt
         else:
             diffAlt = UPPER_LIM_ALT - antAlt
-            Log.info("Sun Alt = " + sunAlt +" greater than Altitude Upper Limit = " + UPPER_LIM_ALT + ", moving to upper limit")
+            Log.info("Sun Alt = " + str(sunAlt) +" greater than Altitude Upper Limit = " + str(UPPER_LIM_ALT) + ", moving to upper limit")
     else:
         diffAlt = antAlt - LOWER_LIM_ALT
-        Log.info("Sun Alt = " + sunAlt +" lower than Altitude Lower Limit = " + LOWER_LIM_ALT + ", moving to lower limit")
+        Log.info("Sun Alt = " + str(sunAlt) +" lower than Altitude Lower Limit = " + str(LOWER_LIM_ALT) + ", moving to lower limit")
 
 
     if(sunAz >= LOWER_LIM_AZ):
@@ -106,12 +106,12 @@ def getDifferenceDeg(antAlt, antAz, sunAlt, sunAz):
             diffAz = sunAz - antAz
         else:
             diffAz = UPPER_LIM_AZ - antAz
-            Log.info("Sun Az = " + sunAz +" greater than Azimuth Upper Limit = " + UPPER_LIM_AZ + ", moving to upper limit")
+            Log.info("Sun Az = " + str(sunAz) +" greater than Azimuth Upper Limit = " + str(UPPER_LIM_AZ) + ", moving to upper limit")
     else:
         diffAz = antAz - LOWER_LIM_AZ
-        Log.info("Sun Az = " + sunAz +" lower than Azimuth Lower Limit = " + LOWER_LIM_AZ + ", moving to lower limit")
+        Log.info("Sun Az = " + str(sunAz) +" lower than Azimuth Lower Limit = " + str(LOWER_LIM_AZ) + ", moving to lower limit")
 
-    Log.info("Degrees to move in altitude: " + diffAlt + " Degrees to move in azimuth: " + diffAz)
+    Log.info("Degrees to move in altitude: " + str(diffAlt) + " Degrees to move in azimuth: " + str(diffAz))
     Log.info("Done getDifferenceDeg.")
 
     return diffAlt, diffAz

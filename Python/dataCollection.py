@@ -20,16 +20,17 @@ def measPower(freq_min, freq_max, integration_interval):
     :param integration_interval: Integration interval for SDR power measurement.
     :return: Mean power (dB) over all frequencies and time.
     """
-    Log.info("Starting measPower with min: " + freq_min + " max: " + freq_max + " integration interval: "
+    Log.info("Starting measPower with min: " + str(freq_min) + " max: " + str(freq_max) + " integration interval: "
              + integration_interval)
 
-    command = ('rtl_power -f ' + freq_min + ':' + freq_max + ':128k -i ' + integration_interval
+    command = ('rtl_power -f ' + str(freq_min) + ':' + str(freq_max) + ':128k -i ' + str(integration_interval)
                + ' -1 tmp/rtl_power_out.csv')
-    Log.info("Executing command: " + command)
+    Log.info("Executing command: " + str(command))
 
     # TODO: Parse rst for error message or nan. Log error.
     try:
-        rst = sp.run([command], shell=True, capture_output=True, text=True, check=True)
+        #rst = sp.run([command], shell=True, capture_output=True, text=True, check=True)
+        rst = sp.run([command], shell=True, capture_output=True, text=True)
     except sp.CalledProcessError as e:
         Log.error("Error executing rtl_power command: " + str(e))
         return 0.0
@@ -56,7 +57,7 @@ def writeData(current_time, power, sunAlt, sunAz):
     :return: None
     """
     Log.info("Starting writeData")
-    Log.info("Writing " + current_time + " " + power + " " + sunAlt + " " + sunAz)
+    Log.info("Writing " + str(current_time) + " " + str(power) + " " + str(sunAlt) + " " + str(sunAz))
 
     data = pd.DataFrame({
         'Time': [current_time],
