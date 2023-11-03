@@ -11,15 +11,16 @@ from astropy.time import Time
 from astropy.coordinates import get_sun, AltAz, EarthLocation
 from utilities import Log
 
-DIR_AZ = 10 # Azimuth stepper motor direction pin from controller
-STEP_AZ = 8 # Azimuth stepper motor pin from controller
-DIR_ALT = 13 # Altitude stepper motor direction pin from controller
-STEP_ALT = 15 # Altitude stepper motor direction pin from controller
-LIM_ALT = 7 # Limit switch 1 input from Pi
-LIM_AZ = 11 # Limit switch 2 input from Pi
-STEP_SIZE = 1.8 # Nema 23 Stepper Motor (1.8 step angle, 200 steps per revolutions)
-CALIBRATION_ROTATION_SIZE = 2 # Number of degrees to move each step during calibration
-CW = 1 # 0/1 used to signify clockwise or counterclockwise.
+DIR_AZ = 10  # Azimuth stepper motor direction pin from controller
+STEP_AZ = 8  # Azimuth stepper motor pin from controller
+DIR_ALT = 13  # Altitude stepper motor direction pin from controller
+STEP_ALT = 15  # Altitude stepper motor direction pin from controller
+LIM_ALT = 7  # Limit switch 1 input from Pi
+LIM_AZ = 11  # Limit switch 2 input from Pi
+STEP_SIZE = 1.8  # Nema 23 Stepper Motor (1.8 step angle, 200 steps per revolutions)
+# TODO: Set CALIBRATION_ROTATION_SIZE appropriately
+CALIBRATION_ROTATION_SIZE = 2  # Number of degrees to move each step during calibration
+CW = 1  # 0/1 used to signify clockwise or counterclockwise.
 CCW = 0
 
 LOWER_LIM_ALT = 0
@@ -27,15 +28,17 @@ UPPER_LIM_ALT = 80
 LOWER_LIM_AZ = 0
 UPPER_LIM_AZ = 180
 
+# Set GPIO pin modes
 GPIO.setmode(GPIO.BOARD)
-GPIO.setup(DIR_AZ, GPIO.OUT) # Establish Pins in software
+GPIO.setup(DIR_AZ, GPIO.OUT)
 GPIO.setup(STEP_AZ, GPIO.OUT)
 GPIO.setup(DIR_ALT, GPIO.OUT)
 GPIO.setup(STEP_ALT, GPIO.OUT)
 GPIO.setup(LIM_ALT, GPIO.IN)
 GPIO.setup(LIM_AZ, GPIO.IN)
-GPIO.output(DIR_AZ, CCW) # Direction of calibration spin for azimuth stepper motor
-GPIO.output(DIR_ALT, CCW) # Direction of calibration spin for altitude stepper motor
+GPIO.output(DIR_AZ, CCW)  # Direction of calibration spin for azimuth stepper motor
+GPIO.output(DIR_ALT, CCW)  # Direction of calibration spin for altitude stepper motor
+
 
 def calibrate(offset):
     """
@@ -46,11 +49,11 @@ def calibrate(offset):
     """
     Log.info("Starting Calibration...")
     # Altitude calibration
-    while(GPIO.input(LIM_ALT) != GPIO.HIGH):
+    while GPIO.input(LIM_ALT) != GPIO.HIGH:
         moveStepper(CALIBRATION_ROTATION_SIZE, 0)
 
     # Azimuth calibration
-    while(GPIO.input(LIM_AZ) != GPIO.HIGH):
+    while GPIO.input(LIM_AZ) != GPIO.HIGH:
         moveStepper(0, CALIBRATION_ROTATION_SIZE)
 
     GPIO.output(DIR_AZ, CW)
@@ -58,27 +61,29 @@ def calibrate(offset):
     Log.info("Done Calibration.")
     return 0, offset
 
+
 def getSunPosition(lat, lon):
     """
     Get the altitude and azimuth of the sun relative to the measurement location.
 
     :param lat: Latitude of the measurement location. (string)
     :param lon: Longitude of the measurement location. (string)
-    :param current_time: Current time.
     :return: Relative sun altitude and azimuth in degrees. (float)
     """
     Log.info("Starting getSunPosition...")
     current_time = Time(time.time(), format='unix')
-    current_time.format= "iso"
-    sunPos = get_sun(current_time) # coordinates of the sun in GCRS frame
-    measurementLoc = EarthLocation(lat = lat, lon = lon) # location of measurement
-    relSunPos = sunPos.transform_to(AltAz(obstime = current_time, location = measurementLoc)) # sun position relative to measurement location
+    current_time.format = "iso"
+    sunPos = get_sun(current_time)  # coordinates of the sun in GCRS frame
+    measurementLoc = EarthLocation(lat=lat, lon=lon)  # location of measurement
+    relSunPos = sunPos.transform_to(
+        AltAz(obstime=current_time, location=measurementLoc))  # sun position relative to measurement location
 
     Log.info("Time: " + str(current_time) + " Sun Alt: " + str(relSunPos.alt.deg) + " Sun Az: " + str(relSunPos.az.deg))
     Log.info("Done getSunPosition.")
 
     return relSunPos.alt.deg, relSunPos.az.deg
-    
+
+
 def getDifferenceDeg(antAlt, antAz, sunAlt, sunAz):
     """
     Calculate the difference in degrees between the antenna and the sun.
@@ -90,31 +95,35 @@ def getDifferenceDeg(antAlt, antAz, sunAlt, sunAz):
     :return: Difference in altitude and azimuth between antenna and sun in degrees. (float)
     """
     Log.info("Starting getDifferenceDeg...")
-    if(sunAlt >= LOWER_LIM_ALT):
-        if(sunAlt <= UPPER_LIM_ALT):
+    if sunAlt >= LOWER_LIM_ALT:
+        if sunAlt <= UPPER_LIM_ALT:
             diffAlt = sunAlt - antAlt
         else:
             diffAlt = UPPER_LIM_ALT - antAlt
-            Log.info("Sun Alt = " + str(sunAlt) +" greater than Altitude Upper Limit = " + str(UPPER_LIM_ALT) + ", moving to upper limit")
+            Log.info("Sun Alt = " + str(sunAlt) + " greater than Altitude Upper Limit = " + str(
+                UPPER_LIM_ALT) + ", moving to upper limit")
     else:
         diffAlt = antAlt - LOWER_LIM_ALT
-        Log.info("Sun Alt = " + str(sunAlt) +" lower than Altitude Lower Limit = " + str(LOWER_LIM_ALT) + ", moving to lower limit")
+        Log.info("Sun Alt = " + str(sunAlt) + " lower than Altitude Lower Limit = " + str(
+            LOWER_LIM_ALT) + ", moving to lower limit")
 
-
-    if(sunAz >= LOWER_LIM_AZ):
-        if(sunAz <= UPPER_LIM_AZ):
+    if sunAz >= LOWER_LIM_AZ:
+        if sunAz <= UPPER_LIM_AZ:
             diffAz = sunAz - antAz
         else:
             diffAz = UPPER_LIM_AZ - antAz
-            Log.info("Sun Az = " + str(sunAz) +" greater than Azimuth Upper Limit = " + str(UPPER_LIM_AZ) + ", moving to upper limit")
+            Log.info("Sun Az = " + str(sunAz) + " greater than Azimuth Upper Limit = " + str(
+                UPPER_LIM_AZ) + ", moving to upper limit")
     else:
         diffAz = antAz - LOWER_LIM_AZ
-        Log.info("Sun Az = " + str(sunAz) +" lower than Azimuth Lower Limit = " + str(LOWER_LIM_AZ) + ", moving to lower limit")
+        Log.info("Sun Az = " + str(sunAz) + " lower than Azimuth Lower Limit = " + str(
+            LOWER_LIM_AZ) + ", moving to lower limit")
 
     Log.info("Degrees to move in altitude: " + str(diffAlt) + " Degrees to move in azimuth: " + str(diffAz))
     Log.info("Done getDifferenceDeg.")
 
     return diffAlt, diffAz
+
 
 def moveStepper(diffAlt, diffAz):
     """
@@ -142,6 +151,7 @@ def moveStepper(diffAlt, diffAz):
     rotateMotor(STEP_ALT, stepsAlt)
     rotateMotor(STEP_AZ, stepsAz)
 
-    Log.info("Stepper motor moved. Altitude change: " + str(diffAlt) + " degrees, Azimuth change: " + str(diffAz) + " degrees")
+    Log.info("Stepper motor moved. Altitude change: " + str(diffAlt) + " degrees, Azimuth change: " + str(
+        diffAz) + " degrees")
     Log.info("Done moveStepper")
     return

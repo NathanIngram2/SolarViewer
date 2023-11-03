@@ -19,8 +19,10 @@ parser = argparse.ArgumentParser(
     description='Solar Viewer is designed to measure microwave radiation from the sun. This'
                 ' program controls tracking the sun, collecting data, and data analysis.')
 
-parser.add_argument('duration', type=str, help='Duration of elapsed time taking data. Format HH:MM - HH(00-23):MM(00-59)')
-parser.add_argument('meas_interval', type=str, help='Time in minutes between measurements. Format MM(0-59)')
+parser.add_argument('duration', type=str,
+                    help='Duration of elapsed time taking data. Format HH:MM - HH(00-23):MM(00-59)')
+parser.add_argument('meas_interval', type=str,
+                    help='Time in minutes between measurements. Format MM(0-59)')
 parser.add_argument('--azimuth_offset', type=int, nargs='?', const=0, default=0,
                     help='Specify primary lobes offset from horizontal in degrees (0 for horn, ~20 for dish). '
                          'Default = 0')
@@ -30,6 +32,8 @@ parser.add_argument('--freq_min', type=str, nargs='?', const='980M', default='98
                     help='Start frequency for power measurement. Ex. 980M, 1G. Default = 980M')
 parser.add_argument('--freq_max', type=str, nargs='?', const='1020M', default='1020M',
                     help='Stop frequency for power measurement. Ex. 980M, 1G. Default = 1020M')
+parser.add_argument('--gain', type=str, nargs='?', const='0', default='0',
+                    help='RTL-SDR input gain. Default = 0')
 parser.add_argument('--latitude', type=str, nargs='?', const='+44d13m29s', default='+44d13m29s',
                     help='Latitude of location. Default = +44d13m29s')
 parser.add_argument('--longitude', type=str, nargs='?', const='-76d29m52s', default='-76d29m52s',
@@ -45,38 +49,38 @@ log = Log(args.verbose)
 LAT = args.latitude
 LON = args.longitude
 ANT_OFFSET_AZ = args.azimuth_offset
-
+FREQ_MIN = args.freq_min
+FREQ_MAX = args.freq_max
+INTEGRATION_INTERVAL = args.integration_interval
 DUR = args.duration
+GAIN = args.gain
+
 duration_hrs = int(DUR.split(":")[0])
 duration_mins = int(DUR.split(":")[1])
-current_time  = datetime.datetime.now(tz=None)
+current_time = datetime.datetime.now(tz=None)
 duration_hrs_min = datetime.timedelta(hours=duration_hrs, minutes=duration_mins)
 end_time = current_time + duration_hrs_min
 
 meas_interval = (int(args.meas_interval) * 60)
 
-FREQ_MIN = args.freq_min
-FREQ_MAX = args.freq_max
-INTEGRATION_INTERVAL = args.integration_interval
-
-antAlt, antAz = calibrate(ANT_OFFSET_AZ)
-
 timeData = []
 powerData = []
+
+antAlt, antAz = calibrate(ANT_OFFSET_AZ)
 
 while current_time < end_time:
     sunAlt, sunAz = getSunPosition(LAT, LON)
     diffAlt, diffAz = getDifferenceDeg(antAlt, antAz, sunAlt, sunAz)
     moveStepper(diffAlt, diffAz)
-    power = measPower(FREQ_MIN, FREQ_MAX, INTEGRATION_INTERVAL)
+    power = measPower(FREQ_MIN, FREQ_MAX, INTEGRATION_INTERVAL, GAIN)
     writeData(current_time, power, sunAlt, sunAz)
     timeData.append(current_time)
     powerData.append(power)
     plotPower(timeData, powerData)
 
-    time.sleep(meas_interval) # min to sec
+    time.sleep(meas_interval)
     current_time = datetime.datetime.now(tz=None)
 
-# Save plot
+# TODO: Add save plot
 
-calibrate(ANT_OFFSET_AZ)  # Return to zero position.
+calibrate(ANT_OFFSET_AZ)  # Return Al and Az routers to zero position.

@@ -11,25 +11,27 @@ import pandas as pd
 import matplotlib.pyplot as plt
 from utilities import Log
 
-def measPower(freq_min, freq_max, integration_interval):
+
+def measPower(freq_min, freq_max, integration_interval, gain):
     """
     Measure the power using rtl_power and return the mean power over all frequencies and time.
 
     :param freq_min: Minimum frequency for power measurement.
     :param freq_max: Maximum frequency for power measurement.
     :param integration_interval: Integration interval for SDR power measurement.
+    :param gain: Input gain for RTL-SDR
     :return: Mean power (dB) over all frequencies and time.
     """
     Log.info("Starting measPower with min: " + str(freq_min) + " max: " + str(freq_max) + " integration interval: "
              + integration_interval)
 
     command = ('rtl_power -f ' + str(freq_min) + ':' + str(freq_max) + ':128k -i ' + str(integration_interval)
-               + ' -1 tmp/rtl_power_out.csv')
+               + ' -g ' + str(gain) + ' -1 tmp/rtl_power_out.csv')
     Log.info("Executing command: " + str(command))
 
     # TODO: Parse rst for error message or nan. Log error.
     try:
-        #rst = sp.run([command], shell=True, capture_output=True, text=True, check=True)
+        #rst = sp.run([command], shell=True, capture_output=True, text=True, check=True) # TODO: check=True was causing issues in testing
         rst = sp.run([command], shell=True, capture_output=True, text=True)
     except sp.CalledProcessError as e:
         Log.error("Error executing rtl_power command: " + str(e))
@@ -45,6 +47,7 @@ def measPower(freq_min, freq_max, integration_interval):
     Log.info("End measPower")
 
     return mean_all_freq_and_time
+
 
 def writeData(current_time, power, sunAlt, sunAz):
     """
@@ -73,6 +76,7 @@ def writeData(current_time, power, sunAlt, sunAz):
         return
 
     Log.info("End writeData")
+
 
 def plotPower(timeData, powerData):
     """
