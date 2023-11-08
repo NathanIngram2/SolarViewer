@@ -9,6 +9,7 @@ Description: Main program for the Solar Eclipse Viewer project for ENPH454 @ Que
 import argparse
 import time
 import datetime
+import matplotlib.pyplot as plt
 
 # Method imports
 from dataCollection import measPower, writeData, plotPower
@@ -66,6 +67,11 @@ meas_interval = (int(args.meas_interval) * 60)
 timeData = []
 powerData = []
 
+# Create figure for plotting
+fig = plt.figure()
+plt.ion()
+
+# Calibrate mechanical setup
 antAlt, antAz = calibrate(ANT_OFFSET_AZ)
 
 while current_time < end_time:
@@ -78,9 +84,11 @@ while current_time < end_time:
     powerData.append(power)
     plotPower(timeData, powerData)
 
-    time.sleep(meas_interval)
+    plt.pause(meas_interval)
     current_time = datetime.datetime.now(tz=None)
 
 # TODO: Add save plot
+plt.ioff()
+plt.show()
 
 calibrate(ANT_OFFSET_AZ)  # Return Al and Az routers to zero position.

@@ -88,11 +88,15 @@ def plotPower(timeData, powerData):
     """
     Log.info("Starting plotPower")
 
-    plt.plot(timeData, powerData)
+    plt.clf()
     plt.xlabel('Time')
     plt.ylabel('Power (dB)')
     plt.title('Power vs Time')
-    plt.show()
+    plt.ylim(-35,-30)
+    plt.plot(timeData, powerData, 'b.')
+    plt.draw()
 
     Log.info("End plotPower")
     return
+
+

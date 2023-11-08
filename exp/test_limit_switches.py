@@ -8,8 +8,8 @@ STEP_ALT = 15 # Altitude stepper motor direction pin from controller
 CW = 1 # 0/1 used to signify clockwise or counterclockwise.
 CCW = 0
 
-LIM_ALT = 7 # Limit switch 1 input from Pi
-LIM_AZ = 11 # Limit switch 2 input from Pi
+LIM_ALT = 18 # Limit switch 1 input from Pi
+LIM_AZ = 22 # Limit switch 2 input from Pi
 
 # Setup pin layout on PI
 GPIO.setmode(GPIO.BOARD)
