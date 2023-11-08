@@ -19,6 +19,4 @@ pip install argparse
 
 pip install numpy
 
-pip install pigpio
-
 -----------------------------------------------------------------------------
