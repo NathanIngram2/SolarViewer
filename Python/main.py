@@ -79,13 +79,12 @@ while current_time < end_time:
     diffAlt, diffAz = getDifferenceDeg(antAlt, antAz, sunAlt, sunAz)
     moveStepper(diffAlt, diffAz)
     power = measPower(FREQ_MIN, FREQ_MAX, INTEGRATION_INTERVAL, GAIN)
+    current_time = datetime.datetime.now(tz=None)
     writeData(current_time, power, sunAlt, sunAz)
     timeData.append(current_time)
     powerData.append(power)
     plotPower(timeData, powerData)
-
     plt.pause(meas_interval)
-    current_time = datetime.datetime.now(tz=None)
 
 # TODO: Add save plot
 plt.ioff()
