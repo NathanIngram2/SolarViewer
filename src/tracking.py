@@ -17,7 +17,7 @@ DIR_ALT = 13  # Altitude stepper motor direction pin from controller
 STEP_ALT = 15  # Altitude stepper motor direction pin from controller
 LIM_ALT = 18  # Limit switch 1 input from Pi
 LIM_AZ = 22  # Limit switch 2 input from Pi
-STEP_SIZE = 1.8  # Nema 23 Stepper Motor (1.8 step angle, 200 steps per revolutions)
+STEP_SIZE = 0.45  # Nema 23 Stepper Motor (1.8 step angle, 200 steps per revolutions)
 # TODO: Set CALIBRATION_ROTATION_SIZE appropriately
 CALIBRATION_ROTATION_SIZE = 2  # Number of degrees to move each step during calibration
 CW = 1  # 0/1 used to signify clockwise or counterclockwise.

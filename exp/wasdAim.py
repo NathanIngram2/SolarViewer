@@ -19,8 +19,10 @@ CCW = 0
 
 # board and pin setup
 GPIO.setmode(GPIO.BOARD)
-GPIO.setup(DIR, GPIO.OUT)
-GPIO.setup(STEP, GPIO.OUT)
+GPIO.setup(DIR_AZ, GPIO.OUT)
+GPIO.setup(STEP_AZ, GPIO.OUT)
+GPIO.setup(DIR_ALT, GPIO.OUT)
+GPIO.setup(STEP_ALT, GPIO.OUT)
 
 print("Enter w-a-s-d for respective movement of the antenna direction.")
 print("W: increase altitude, A: rotate CCW, S: decrease altitude, D: rotate CW")
