@@ -62,7 +62,7 @@ current_time = datetime.datetime.now(tz=None)
 duration_hrs_min = datetime.timedelta(hours=duration_hrs, minutes=duration_mins)
 end_time = current_time + duration_hrs_min
 
-meas_interval = (int(args.meas_interval) * 60)
+meas_interval = int(float(args.meas_interval) * 60)
 
 timeData = []
 powerData = []
