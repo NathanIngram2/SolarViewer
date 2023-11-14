@@ -84,7 +84,7 @@ def getSunPosition(lat, lon):
     return relSunPos.alt.deg, relSunPos.az.deg
 
 
-def getDifferenceDeg(antAlt, antAlt, sunAlt, sunAz):
+def getDifferenceDeg(antAlt, antAz, sunAlt, sunAz):
     """
     Calculate the difference in degrees between the antenna and the sun.
 
