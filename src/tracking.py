@@ -84,7 +84,7 @@ def getSunPosition(lat, lon):
     return relSunPos.alt.deg, relSunPos.az.deg
 
 
-def getDifferenceDeg(antAlt, antAz, sunAlt, sunAz):
+def getDifferenceDeg(antAlt, antAlt, sunAlt, sunAz):
     """
     Calculate the difference in degrees between the antenna and the sun.
 
@@ -122,7 +122,10 @@ def getDifferenceDeg(antAlt, antAz, sunAlt, sunAz):
     Log.info("Degrees to move in altitude: " + str(diffAlt) + " Degrees to move in azimuth: " + str(diffAz))
     Log.info("Done getDifferenceDeg.")
 
-    return diffAlt, diffAz
+    updatedAntAlt = antAlt + diffAlt
+    updatedAntAz = antAz + diffAz
+
+    return diffAlt, diffAz, updatedAntAlt, updatedAntAz
 
 
 def moveStepper(diffAlt, diffAz):

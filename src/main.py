@@ -76,7 +76,7 @@ antAlt, antAz = calibrate(ANT_OFFSET_AZ)
 
 while current_time < end_time:
     sunAlt, sunAz = getSunPosition(LAT, LON)
-    diffAlt, diffAz = getDifferenceDeg(antAlt, antAz, sunAlt, sunAz)
+    diffAlt, diffAz, antAlt, antAz = getDifferenceDeg(antAlt, antAz, sunAlt, sunAz)
     moveStepper(diffAlt, diffAz)
     power = measPower(FREQ_MIN, FREQ_MAX, INTEGRATION_INTERVAL, GAIN)
     current_time = datetime.datetime.now(tz=None)
