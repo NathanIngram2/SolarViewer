@@ -28,6 +28,9 @@ UPPER_LIM_ALT = 80
 LOWER_LIM_AZ = 0
 UPPER_LIM_AZ = 180
 
+EL_GEAR_RATIO = 10
+AZ_GEAR_RATIO = 4.4
+
 # Set GPIO pin modes
 GPIO.setmode(GPIO.BOARD)
 GPIO.setup(DIR_AZ, GPIO.OUT)
@@ -139,8 +142,9 @@ def moveStepper(diffAlt, diffAz):
     Log.info("Starting moveStepper")
 
     # Number of steps required for difference in angles.
-    stepsAlt = int(diffAlt / STEP_SIZE)
-    stepsAz = int(diffAz / STEP_SIZE)
+    # TODO: Integer cast will cause inaccurate tracking. Need to fix.
+    stepsAlt = int((diffAlt / STEP_SIZE) * EL_GEAR_RATIO)
+    stepsAz = int((diffAz / STEP_SIZE) * AZ_GEAR_RATIO)
 
     # Function to rotate stepper motor.
     def rotateMotor(pin, steps):
