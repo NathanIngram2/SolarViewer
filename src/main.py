@@ -24,7 +24,7 @@ parser.add_argument('duration', type=str,
                     help='Duration of elapsed time taking data. Format HH:MM - HH(00-23):MM(00-59)')
 parser.add_argument('meas_interval', type=str,
                     help='Time in minutes between measurements. Format MM(0-59)')
-parser.add_argument('--azimuth_offset', type=int, nargs='?', const=0, default=0,
+parser.add_argument('--elevation_offset', type=int, nargs='?', const=0, default=0,
                     help='Specify primary lobes offset from horizontal in degrees (0 for horn, ~20 for dish). '
                          'Default = 0')
 parser.add_argument('--integration_interval', type=str, nargs='?', const='1s', default='1s',
@@ -49,7 +49,7 @@ log = Log(args.verbose)
 # Constants and parsed arguments.
 LAT = args.latitude
 LON = args.longitude
-ANT_OFFSET_AZ = args.azimuth_offset
+ANT_OFFSET_EL = args.elevation_offset
 FREQ_MIN = args.freq_min
 FREQ_MAX = args.freq_max
 INTEGRATION_INTERVAL = args.integration_interval
@@ -72,7 +72,7 @@ fig = plt.figure()
 plt.ion()
 
 # Calibrate mechanical setup
-antAlt, antAz = calibrate(ANT_OFFSET_AZ)
+antAlt, antAz = calibrate(ANT_OFFSET_EL)
 
 while current_time < end_time:
     sunAlt, sunAz = getSunPosition(LAT, LON)
@@ -90,4 +90,4 @@ while current_time < end_time:
 plt.ioff()
 plt.show()
 
-calibrate(ANT_OFFSET_AZ)  # Return Al and Az routers to zero position.
+calibrate(ANT_OFFSET_EL)  # Return Al and Az rotators to zero position.
