@@ -158,7 +158,20 @@ def moveStepper(diffAlt, diffAz):
     rotateMotor(STEP_ALT, stepsAlt)
     rotateMotor(STEP_AZ, stepsAz)
 
+    degErrorAlt = (stepsAlt/EL_GEAR_RATIO)*STEP_SIZE
+    degErrorAz = (stepsAz/AZ_GEAR_RATIO)*STEP_SIZE
+
     Log.info("Stepper motor moved. Altitude change: " + str(diffAlt) + " degrees, Azimuth change: " + str(
         diffAz) + " degrees")
     Log.info("Done moveStepper")
-    return
+
+    return degErrorAlt, degErrorAz
+
+def positionErrorCorrection(antAlt, antAz, degErrorAlt, degErrorAz)
+    Log.info("Starting positionErrorCorrection")
+
+    correctedAntAlt = antAlt + degErrorAlt
+    correctedAntAz = antAz + degErrorAz
+
+    Log.info("Done positionErrorCorrection")
+    return correctedAntAlt, correctedAntAz
