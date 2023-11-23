@@ -143,8 +143,11 @@ def moveStepper(diffAlt, diffAz):
 
     # Number of steps required for difference in angles.
     # TODO: Integer cast will cause inaccurate tracking. Need to fix.
-    stepsAlt = int((diffAlt / STEP_SIZE) * EL_GEAR_RATIO)
-    stepsAz = int((diffAz / STEP_SIZE) * AZ_GEAR_RATIO)
+    stepsAlt = (diffAlt / STEP_SIZE) * EL_GEAR_RATIO
+    stepsAz = (diffAz / STEP_SIZE) * AZ_GEAR_RATIO
+
+    stepsAltInt = int(stepsAlt)
+    stepsAzInt = int(stepsAz)
 
     # Function to rotate stepper motor.
     def rotateMotor(pin, steps):
@@ -155,11 +158,11 @@ def moveStepper(diffAlt, diffAz):
             time.sleep(0.001)  # TODO: Adjust sleep time.
 
     # Rotate the stepper motor for altitude and azimuth.
-    rotateMotor(STEP_ALT, stepsAlt)
-    rotateMotor(STEP_AZ, stepsAz)
+    rotateMotor(STEP_ALT, stepsAltInt)
+    rotateMotor(STEP_AZ, stepsAzInt)
 
-    degErrorAlt = (stepsAlt/EL_GEAR_RATIO)*STEP_SIZE
-    degErrorAz = (stepsAz/AZ_GEAR_RATIO)*STEP_SIZE
+    degErrorAlt = stepsAlt - stepsAltInt
+    degErrorAz = stepsAz - stepsAzInt
 
     Log.info("Stepper motor moved. Altitude change: " + str(diffAlt) + " degrees, Azimuth change: " + str(
         diffAz) + " degrees")
@@ -167,9 +170,11 @@ def moveStepper(diffAlt, diffAz):
 
     return degErrorAlt, degErrorAz
 
-def positionErrorCorrection(antAlt, antAz, degErrorAlt, degErrorAz)
+def positionErrorCorrection(antAlt, antAz, degErrorAlt, degErrorAz):
     Log.info("Starting positionErrorCorrection")
 
+    Log.info("Correcting elevation by: " + str(degErrorAlt) + " deg")
+    Log.info("Correcting azimuth by: " + str(degErrorAz) + " deg")
     correctedAntAlt = antAlt + degErrorAlt
     correctedAntAz = antAz + degErrorAz
 

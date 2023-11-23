@@ -13,7 +13,7 @@ import matplotlib.pyplot as plt
 
 # Method imports
 from dataCollection import measPower, writeData, plotPower
-from tracking import calibrate, getSunPosition, getDifferenceDeg, moveStepper
+from tracking import calibrate, getSunPosition, getDifferenceDeg, moveStepper, positionErrorCorrection
 from utilities import Log
 
 parser = argparse.ArgumentParser(
