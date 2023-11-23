@@ -37,10 +37,17 @@ calibrate(ANT_OFFSET_EL)
 data = np.zeros((EL_MAX, AZ_MAX))
 
 for i in range(EL_MAX):
-    for j in range(AZ_MAX):
-        data[i][j] = measPower(FREQ_MIN, FREQ_MAX, INTEGRATION_INTERVAL, GAIN)
-        moveStepper(1, 1)
-        time.sleep(1)
+    if i % 2 == 0:
+        for j in range(AZ_MAX):
+            data[i][j] = measPower(FREQ_MIN, FREQ_MAX, INTEGRATION_INTERVAL, GAIN)
+            moveStepper(0, 1)
+            time.sleep(0.2)
+    else:
+        for j in range(AZ_MAX):
+            data[i][j] = measPower(FREQ_MIN, FREQ_MAX, INTEGRATION_INTERVAL, GAIN)
+            moveStepper(0, -1)
+            time.sleep(0.2)
+    moveStepper(1, 0)
 
 np.savetxt("ImageData" + str(datetime.datetime.now().strftime("%Y%m%d%H%M%S")) + ".csv", data, delimiter=",")
 plt.imshow(data, origin='lower', interpolation=None)

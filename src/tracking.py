@@ -142,7 +142,6 @@ def moveStepper(diffAlt, diffAz):
     Log.info("Starting moveStepper")
 
     # Number of steps required for difference in angles.
-    # TODO: Integer cast will cause inaccurate tracking. Need to fix.
     stepsAlt = (diffAlt / STEP_SIZE) * EL_GEAR_RATIO
     stepsAz = (diffAz / STEP_SIZE) * AZ_GEAR_RATIO
 
@@ -161,8 +160,8 @@ def moveStepper(diffAlt, diffAz):
     rotateMotor(STEP_ALT, stepsAltInt)
     rotateMotor(STEP_AZ, stepsAzInt)
 
-    degErrorAlt = stepsAlt - stepsAltInt
-    degErrorAz = stepsAz - stepsAzInt
+    degErrorAlt = stepsAltInt - stepsAlt
+    degErrorAz = stepsAzInt - stepsAz
 
     Log.info("Stepper motor moved. Altitude change: " + str(diffAlt) + " degrees, Azimuth change: " + str(
         diffAz) + " degrees")
