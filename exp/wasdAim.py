@@ -37,10 +37,10 @@ while True:
         # Set one coil winding to high
         GPIO.output(STEP_ALT,GPIO.HIGH)
         # Allow it to get there.
-        time.sleep(.005) # Dictates how fast stepper motor will run
+        time.sleep(.001) # Dictates how fast stepper motor will run
         # Set coil winding to low
         GPIO.output(STEP_ALT,GPIO.LOW)
-        time.sleep(.005) # Dictates how fast stepper motor will run
+        time.sleep(.001) # Dictates how fast stepper motor will run
 
     if keyPressed == 'a':
         print("CCW rotation")
@@ -48,10 +48,10 @@ while True:
         # Set one coil winding to high
         GPIO.output(STEP_AZ,GPIO.HIGH)
         # Allow it to get there.
-        time.sleep(.005) # Dictates how fast stepper motor will run
+        time.sleep(.001) # Dictates how fast stepper motor will run
         # Set coil winding to low
         GPIO.output(STEP_AZ,GPIO.LOW)
-        time.sleep(.005) # Dictates how fast stepper motor will run
+        time.sleep(.001) # Dictates how fast stepper motor will run
 
     if keyPressed == 's':
         print("Decreasing altitude")
@@ -59,10 +59,10 @@ while True:
         # Set one coil winding to high
         GPIO.output(STEP_ALT,GPIO.HIGH)
         # Allow it to get there.
-        time.sleep(.005) # Dictates how fast stepper motor will run
+        time.sleep(.001) # Dictates how fast stepper motor will run
         # Set coil winding to low
         GPIO.output(STEP_ALT,GPIO.LOW)
-        time.sleep(.005) # Dictates how fast stepper motor will run
+        time.sleep(.001) # Dictates how fast stepper motor will run
 
     if keyPressed == 'd':
         print("CW rotation")
@@ -70,10 +70,10 @@ while True:
         # Set one coil winding to high
         GPIO.output(STEP_AZ,GPIO.HIGH)
         # Allow it to get there.
-        time.sleep(.005) # Dictates how fast stepper motor will run
+        time.sleep(.001) # Dictates how fast stepper motor will run
         # Set coil winding to low
         GPIO.output(STEP_AZ,GPIO.LOW)
-        time.sleep(.005) # Dictates how fast stepper motor will run
+        time.sleep(.001) # Dictates how fast stepper motor will run
 
     if keyPressed == 'm':
         freq_min = int(input("What is the min frequency?"))
