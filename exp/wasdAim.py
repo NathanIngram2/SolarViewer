@@ -43,12 +43,13 @@ while True:
         zeroPoint = True
         az = 0
         alt = 0
+        print("Reached Zero Point")
 
     if keyPressed == 'w':
         print("Increasing altitude")
         if zeroPoint == True:
                 alt = alt + DEGREES_EL
-                print("Updated location: Alt = " + alt + " Az = " + az)
+                print("Updated location: Alt = " + str(alt) + " Az = " + str(az))
         GPIO.output(DIR_ALT,CW)
         # Set one coil winding to high
         GPIO.output(STEP_ALT,GPIO.HIGH)
@@ -62,7 +63,7 @@ while True:
         print("CCW rotation")
         if zeroPoint == True:
                 az = az - DEGREES_AZ
-                print("Updated location: Alt = " + alt + " Az = " + az)
+                print("Updated location: Alt = " + str(alt) + " Az = " + str(az))
         GPIO.output(DIR_AZ, CW)
         # Set one coil winding to high
         GPIO.output(STEP_AZ,GPIO.HIGH)
@@ -76,7 +77,7 @@ while True:
         print("Decreasing altitude")
         if zeroPoint == True:
                 alt = alt - DEGREES_EL
-                print("Updated location: Alt = " + alt + " Az = " + az)
+                print("Updated location: Alt = " + str(alt) + " Az = " + str(az))
         GPIO.output(DIR_ALT, CCW)
         # Set one coil winding to high
         GPIO.output(STEP_ALT,GPIO.HIGH)
@@ -90,7 +91,7 @@ while True:
         print("CW rotation")
         if zeroPoint == True:
                 az = az + DEGREES_AZ
-                print("Updated location: Alt = " + alt + " Az = " + az)
+                print("Updated location: Alt = " + str(alt) + " Az = " + str(az))
         GPIO.output(DIR_AZ, CCW)
         # Set one coil winding to high
         GPIO.output(STEP_AZ,GPIO.HIGH)
