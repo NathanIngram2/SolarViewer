@@ -53,14 +53,14 @@ def calibrate(offset):
     Log.info("Starting Calibration...")
     # Altitude calibration
     while GPIO.input(LIM_ALT) != GPIO.HIGH:
-        moveStepper(CALIBRATION_ROTATION_SIZE, 0)
+        moveStepper(-CALIBRATION_ROTATION_SIZE, 0)
+        time.sleep(0.001)
 
     # Azimuth calibration
     while GPIO.input(LIM_AZ) != GPIO.HIGH:
-        moveStepper(0, CALIBRATION_ROTATION_SIZE)
+        moveStepper(0, -CALIBRATION_ROTATION_SIZE)
+        time.sleep(0.001)
 
-    GPIO.output(DIR_AZ, CW)
-    GPIO.output(DIR_ALT, CW)
     Log.info("Done Calibration.")
     return 0, offset
 
@@ -140,6 +140,16 @@ def moveStepper(diffAlt, diffAz):
     :return: None
     """
     Log.info("Starting moveStepper")
+
+    if diffAz < 0:
+        GPIO.output(DIR_AZ, CW)
+    else:
+        GPIO.output(DIR_AZ, CCW)
+
+    if diffAlt < 0:
+        GPIO.output(DIR_ALT, CCW)
+    else:
+        GPIO.output(DIR_ALT, CW)
 
     # Number of steps required for difference in angles.
     stepsAlt = (diffAlt / STEP_SIZE) * EL_GEAR_RATIO
