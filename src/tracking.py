@@ -19,7 +19,6 @@ LIM_ALT = 18  # Limit switch 1 input from Pi
 LIM_AZ = 22  # Limit switch 2 input from Pi
 STEP_SIZE = 0.45  # Nema 23 Stepper Motor (1.8 step angle, 200 steps per revolutions)
 # TODO: Set CALIBRATION_ROTATION_SIZE appropriately
-CALIBRATION_ROTATION_SIZE =   # Number of degrees to move each step during calibration
 CW = 1  # 0/1 used to signify clockwise or counterclockwise.
 CCW = 0
 
@@ -53,12 +52,12 @@ def calibrate(offset):
     Log.info("Starting Calibration...")
     # Altitude calibration
     while GPIO.input(LIM_ALT) != GPIO.HIGH:
-        moveStepper(-STEP_SIZE/EL_GEAR_RATIO, 0)
+        moveStepper(-0.05, 0)
         time.sleep(0.001)
 
     # Azimuth calibration
     while GPIO.input(LIM_AZ) != GPIO.HIGH:
-        moveStepper(0, -STEP_SIZE/AZ_GEAR_RATIO)
+        moveStepper(0, -0.12)
         time.sleep(0.001)
 
     Log.info("Done Calibration.")
@@ -164,7 +163,7 @@ def moveStepper(diffAlt, diffAz):
             GPIO.output(pin, GPIO.HIGH)
             time.sleep(0.001)  # TODO: Adjust sleep time.
             GPIO.output(pin, GPIO.LOW)
-            time.sleep(0.001)  # TODO: Adjust sleep time.
+            time.sleep(0.05)  # TODO: Adjust sleep time.
 
     # Rotate the stepper motor for altitude and azimuth.
     rotateMotor(STEP_ALT, stepsAltInt)
