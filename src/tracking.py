@@ -155,8 +155,8 @@ def moveStepper(diffAlt, diffAz):
     stepsAlt = (diffAlt / STEP_SIZE) * EL_GEAR_RATIO
     stepsAz = (diffAz / STEP_SIZE) * AZ_GEAR_RATIO
 
-    stepsAltInt = int(stepsAlt)
-    stepsAzInt = int(stepsAz)
+    stepsAltInt = abs(int(stepsAlt))
+    stepsAzInt = abs(int(stepsAz))
 
     # Function to rotate stepper motor.
     def rotateMotor(pin, steps):
