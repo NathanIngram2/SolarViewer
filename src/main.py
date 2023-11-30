@@ -27,6 +27,9 @@ parser.add_argument('meas_interval', type=str,
 parser.add_argument('--elevation_offset', type=int, nargs='?', const=0, default=0,
                     help='Specify primary lobes offset from horizontal in degrees (0 for horn, ~20 for dish). '
                          'Default = 0')
+parser.add_argument('--azimuth_offset', type=int, nargs='?', const=0, default=0,
+                    help='Specify primary lobes offset from vertical in degrees. '
+                         'Default = 0')
 parser.add_argument('--integration_interval', type=str, nargs='?', const='1s', default='1s',
                     help='Integration integral of SDR power measurement. Ex. 1s, 1m, etc. Default = 1s')
 parser.add_argument('--freq_min', type=str, nargs='?', const='980M', default='980M',
@@ -46,15 +49,19 @@ args = parser.parse_args()
 # Setup Logging
 log = Log(args.verbose)
 
+DISH_ARM_ANGLE_CALIBRATION = 62.5
+
 # Constants and parsed arguments.
 LAT = args.latitude
 LON = args.longitude
 ANT_OFFSET_EL = args.elevation_offset
+ANT_OFFSET_AZ = args.azimuth_offset + DISH_ARM_ANGLE_CALIBRATION
 FREQ_MIN = args.freq_min
 FREQ_MAX = args.freq_max
 INTEGRATION_INTERVAL = args.integration_interval
 DUR = args.duration
 GAIN = args.gain
+
 
 duration_hrs = int(DUR.split(":")[0])
 duration_mins = int(DUR.split(":")[1])
@@ -72,11 +79,11 @@ fig = plt.figure()
 plt.ion()
 
 # Calibrate mechanical setup
-antAlt, antAz = calibrate(ANT_OFFSET_EL)
+antAlt, antAz = calibrate(ANT_OFFSET_EL, ANT_OFFSET_AZ)
 
 while current_time < end_time:
     sunAlt, sunAz = getSunPosition(LAT, LON)
-    diffAlt, diffAz, antAlt, antAz = getDifferenceDeg(antAlt, antAz, sunAlt, sunAz)
+    diffAlt, diffAz, antAlt, antAz = getDifferenceDeg(antAlt, antAz, sunAlt, sunAz,  ANT_OFFSET_EL, ANT_OFFSET_AZ)
     degErrorAlt, degErrorAz = moveStepper(diffAlt, diffAz)
     antAlt, antAz = positionErrorCorrection(antAlt, antAz, degErrorAlt, degErrorAz)
     power = measPower(FREQ_MIN, FREQ_MAX, INTEGRATION_INTERVAL, GAIN)

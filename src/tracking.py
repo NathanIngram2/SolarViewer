@@ -23,9 +23,9 @@ CW = 1  # 0/1 used to signify clockwise or counterclockwise.
 CCW = 0
 
 LOWER_LIM_ALT = 0
-UPPER_LIM_ALT = 80
+UPPER_LIM_ALT = 32
 LOWER_LIM_AZ = 0
-UPPER_LIM_AZ = 180
+UPPER_LIM_AZ = 145
 
 EL_GEAR_RATIO = 10
 AZ_GEAR_RATIO = 4.4
@@ -42,11 +42,12 @@ GPIO.output(DIR_AZ, CCW)  # Direction of calibration spin for azimuth stepper mo
 GPIO.output(DIR_ALT, CCW)  # Direction of calibration spin for altitude stepper motor
 
 
-def calibrate(offset):
+def calibrate(offsetAlt, offsetAz):
     """
     Calibrate the stepper motor to the limit switch and return the starting altitude and azimuth.
 
-    :param offset: Azimuth offset in degrees.
+    :param offsetAlt: Altitude offset in degrees.
+    :param offsetAz: Azimuth offset in degrees.
     :return: Starting altitude and azimuth of the antenna in degrees. (0,0)
     """
     Log.info("Starting Calibration...")
@@ -61,7 +62,7 @@ def calibrate(offset):
         time.sleep(0.001)
 
     Log.info("Done Calibration.")
-    return 0, offset
+    return offsetAlt, offsetAz
 
 
 def getSunPosition(lat, lon):
@@ -86,7 +87,7 @@ def getSunPosition(lat, lon):
     return relSunPos.alt.deg, relSunPos.az.deg
 
 
-def getDifferenceDeg(antAlt, antAz, sunAlt, sunAz):
+def getDifferenceDeg(antAlt, antAz, sunAlt, sunAz, offsetAlt, offsetAz):
     """
     Calculate the difference in degrees between the antenna and the sun.
 
@@ -94,32 +95,34 @@ def getDifferenceDeg(antAlt, antAz, sunAlt, sunAz):
     :param antAz: Current azimuth of the antenna in degrees. (float)
     :param sunAlt: Current altitude of the sun in degrees. (float)
     :param sunAz: Current azimuth of the sun in degrees. (float)
+    :param offsetAlt: Offset altitude of the antenna in degrees. (float)
+    :param offsetAz: Offset azimuth of the antenna in degrees. (float)
     :return: Difference in altitude and azimuth between antenna and sun in degrees. (float)
     """
     Log.info("Starting getDifferenceDeg...")
-    if sunAlt >= LOWER_LIM_ALT:
-        if sunAlt <= UPPER_LIM_ALT:
+    if sunAlt >= (LOWER_LIM_ALT + offsetAlt):
+        if sunAlt <= (UPPER_LIM_ALT + offsetAlt):
             diffAlt = sunAlt - antAlt
         else:
-            diffAlt = UPPER_LIM_ALT - antAlt
+            diffAlt = (UPPER_LIM_ALT + offsetAlt) - antAlt
             Log.info("Sun Alt = " + str(sunAlt) + " greater than Altitude Upper Limit = " + str(
-                UPPER_LIM_ALT) + ", moving to upper limit")
+                UPPER_LIM_ALT + offsetAlt) + ", moving to upper limit")
     else:
-        diffAlt = antAlt - LOWER_LIM_ALT
+        diffAlt = antAlt - (LOWER_LIM_ALT + offsetAlt)
         Log.info("Sun Alt = " + str(sunAlt) + " lower than Altitude Lower Limit = " + str(
-            LOWER_LIM_ALT) + ", moving to lower limit")
+            LOWER_LIM_ALT + offsetAlt) + ", moving to lower limit")
 
-    if sunAz >= LOWER_LIM_AZ:
-        if sunAz <= UPPER_LIM_AZ:
+    if sunAz >= (LOWER_LIM_AZ + offsetAz):
+        if sunAz <= (UPPER_LIM_AZ + offsetAz):
             diffAz = sunAz - antAz
         else:
-            diffAz = UPPER_LIM_AZ - antAz
+            diffAz = (UPPER_LIM_AZ + offsetAz) - antAz
             Log.info("Sun Az = " + str(sunAz) + " greater than Azimuth Upper Limit = " + str(
-                UPPER_LIM_AZ) + ", moving to upper limit")
+                UPPER_LIM_AZ + offsetAz) + ", moving to upper limit")
     else:
-        diffAz = antAz - LOWER_LIM_AZ
+        diffAz = antAz - (LOWER_LIM_AZ + offsetAz)
         Log.info("Sun Az = " + str(sunAz) + " lower than Azimuth Lower Limit = " + str(
-            LOWER_LIM_AZ) + ", moving to lower limit")
+            LOWER_LIM_AZ + offsetAz) + ", moving to lower limit")
 
     Log.info("Degrees to move in altitude: " + str(diffAlt) + " Degrees to move in azimuth: " + str(diffAz))
     Log.info("Done getDifferenceDeg.")
