@@ -25,9 +25,9 @@ parser = argparse.ArgumentParser(
     description='Solar Viewer is designed to measure microwave radiation from the sun. This'
                 ' program controls tracking the sun, collecting data, and data analysis.')
 
-parser.add_argument('--elevation_offset', type=int, nargs='?', const=0, default=0,
+parser.add_argument('--elevation_offset', type=float, nargs='?', const=0, default=0,
                     help='Specify primary lobes offset from horizontal in degrees (0 for horn, ~20 for dish). Default = 0')
-parser.add_argument('--azimuth_offset', type=int, nargs='?', const=0, default=0,
+parser.add_argument('--azimuth_offset', type=float, nargs='?', const=0, default=0,
                     help='Specify primary lobes offset from vertical in degrees. Default = 0')
 parser.add_argument('--integration_interval', type=str, nargs='?', const='1s', default='1s',
                     help='Integration integral of SDR power measurement. Ex. 1s, 1m, etc. Default = 1s')
@@ -41,18 +41,23 @@ parser.add_argument('--latitude', type=str, nargs='?', const='+44d13m29s', defau
                     help='Latitude of location. Default = +44d13m29s')
 parser.add_argument('--longitude', type=str, nargs='?', const='-76d29m52s', default='-76d29m52s',
                     help='Longitude of location. Default = -76d29m52s')
-parser.add_argument('--image_width', type=int, nargs='?', const=0, default=8,
+parser.add_argument('--image_width', type=int, nargs='?', const=8, default=8,
                     help='Height of image in degrees (int). Default = 8')
-parser.add_argument('--image_height', type=int, nargs='?', const=0, default=8,
+parser.add_argument('--image_height', type=int, nargs='?', const=8, default=8,
                     help='Width of image in degrees (int). Default = 8')
+parser.add_argument('--sun_alt', type=float, nargs='?', const=0, default=None,
+                    help='Starting altitude of the sun, manual input for testing. Ex. 22.5. Default = None')
+parser.add_argument('--sun_az', type=float, nargs='?', const=0, default=None,
+                    help='Starting azimuth of the sun, manual input for testing. Ex. 22.5. Default = None')
+parser.add_argument('--verbose', type=str, choices={"LOW", "MED", "HIGH"}, nargs='?', const="HIGH",
+                    default="HIGH", help="Select verbosity level of console output. Default = HIGH")
 args = parser.parse_args()
 
 # Setup Logging
-log = Log("HIGH")
-
-DISH_ARM_ANGLE_CALIBRATION = 62.5
+log = Log(args.verbose)
 
 # Constants and parsed arguments.
+DISH_ARM_ANGLE_CALIBRATION = 62.5
 LAT = args.latitude
 LON = args.longitude
 ANT_OFFSET_EL = args.elevation_offset
@@ -64,28 +69,32 @@ GAIN = args.gain
 IMG_WIDTH = args.image_width
 IMG_HEIGHT = args.image_height
 
+# Calibration and position determination
 antAlt, antAz = calibrate(ANT_OFFSET_EL, ANT_OFFSET_AZ)
 sunAlt, sunAz = getSunPosition(LAT, LON)
 
-startingAlt = sunAlt - (IMG_HEIGHT / 2)
-finalAlt = sunAlt + (IMG_HEIGHT / 2)
-startingAz = sunAz - (IMG_WIDTH / 2)
-finalAz = sunAlt + (IMG_WIDTH / 2)
+# Calculate the starting Altitude and Azimuth based on the sun's position and image dimensions
+startingAlt = int(sunAlt - (IMG_HEIGHT / 2))
+startingAz = int(sunAz - (IMG_WIDTH / 2))
 
+# Initial calculation of the difference in degrees between antenna and starting position
 diffAlt, diffAz, antAlt, antAz = getDifferenceDeg(antAlt, antAz, startingAlt, startingAz, ANT_OFFSET_EL, ANT_OFFSET_AZ)
 degErrorAlt, degErrorAz = moveStepper(diffAlt, diffAz)
 
-data = np.zeros((ANT_OFFSET_EL, ANT_OFFSET_AZ))
+# Initialize a 2D array to store the data collected
+data = np.zeros((IMG_WIDTH, IMG_HEIGHT))
 
-for i in range(finalAlt):
+# Data collection loop, scanning over the specified range in Altitude and Azimuth
+for i in range(IMG_HEIGHT):
+    # Alternate scanning direction for each row to improve efficiency
     if i % 2 == 0:
-        for j in range(finalAz):
+        for j in range(IMG_WIDTH):
             data[i][j] = measPower(FREQ_MIN, FREQ_MAX, INTEGRATION_INTERVAL, GAIN)
             diffAlt, diffAz, antAlt, antAz = getDifferenceDeg(antAlt, antAz, antAlt, antAz + 1, ANT_OFFSET_EL, ANT_OFFSET_AZ)
             moveStepper(0, diffAz)
             time.sleep(0.2)
     else:
-        for j in range(finalAz):
+        for j in range(IMG_WIDTH):
             data[i][j] = measPower(FREQ_MIN, FREQ_MAX, INTEGRATION_INTERVAL, GAIN)
             diffAlt, diffAz, antAlt, antAz = getDifferenceDeg(antAlt, antAz, antAlt, antAz - 1, ANT_OFFSET_EL, ANT_OFFSET_AZ)
             moveStepper(0, diffAz)
@@ -93,6 +102,9 @@ for i in range(finalAlt):
     diffAlt, diffAz, antAlt, antAz = getDifferenceDeg(antAlt, antAz, antAlt + 1, antAz, ANT_OFFSET_EL, ANT_OFFSET_AZ)
     moveStepper(diffAlt, 0)
 
+# Save the collected data to a CSV file with a timestamp
 np.savetxt("ImageData" + str(datetime.datetime.now().strftime("%Y%m%d%H%M%S")) + ".csv", data, delimiter=",")
+
+# Display the collected data as an image
 plt.imshow(data, origin='lower', interpolation=None)
 plt.show()
