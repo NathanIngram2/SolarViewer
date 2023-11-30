@@ -78,7 +78,7 @@ def writeData(current_time, power, sunAlt, sunAz):
     Log.info("End writeData")
 
 
-def plotPower(timeData, powerData):
+def plotPower(timeData, powerData, savePlot=False):
     """
     Plot power as a function of time.
 
@@ -95,6 +95,9 @@ def plotPower(timeData, powerData):
     plt.ylim(-35,-30)
     plt.plot(timeData, powerData, 'b.')
     plt.draw()
+
+    if savePlot == True:
+        plt.savefig('plot.png')
 
     Log.info("End plotPower")
     return

@@ -98,4 +98,7 @@ while current_time < end_time:
 plt.ioff()
 plt.show()
 
+# Save plot
+plotPower(timeData, powerData, savePlot=True)
+
 calibrate(ANT_OFFSET_EL)  # Return Al and Az rotators to zero position.
