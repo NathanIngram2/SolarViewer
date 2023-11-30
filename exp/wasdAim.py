@@ -102,9 +102,15 @@ while True:
         time.sleep(.001) # Dictates how fast stepper motor will run
 
     if keyPressed == 'm':
-        freq_min = int(input("What is the min frequency?"))
-        freq_max = int(input("What is the max frequency?"))
-        integration_interval = int(input("How long would you like this averaged over (reccomended <3sec)"))
+        freq_min = input("What is the min frequency?") + "M"
+        freq_max = input("What is the max frequency?") + "M"
+        integration_interval = input("How long would you like this averaged over (recomended <3sec)") + "s"
+        measPower(freq_min, freq_max, integration_interval)
+
+    if keyPressed == 'n':
+        freq_min = "980M"
+        freq_max = "1020M"
+        integration_interval = "1s"
         measPower(freq_min, freq_max, integration_interval)
 
     if keyPressed == 'b':
