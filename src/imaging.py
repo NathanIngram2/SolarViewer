@@ -45,10 +45,10 @@ parser.add_argument('--image_width', type=int, nargs='?', const=8, default=8,
                     help='Height of image in degrees (int). Default = 8')
 parser.add_argument('--image_height', type=int, nargs='?', const=8, default=8,
                     help='Width of image in degrees (int). Default = 8')
-parser.add_argument('--sun_alt', type=float, nargs='?', const=0, default=None,
-                    help='Starting altitude of the sun, manual input for testing. Ex. 22.5. Default = None')
-parser.add_argument('--sun_az', type=float, nargs='?', const=0, default=None,
-                    help='Starting azimuth of the sun, manual input for testing. Ex. 22.5. Default = None')
+parser.add_argument('--sun_alt', type=float, nargs='?', const=400, default=400,
+                    help='Starting altitude of the sun, manual input for testing. Ex. 22.5. Default = 400')
+parser.add_argument('--sun_az', type=float, nargs='?', const=400, default=400,
+                    help='Starting azimuth of the sun, manual input for testing. Ex. 22.5. Default = 400')
 parser.add_argument('--verbose', type=str, choices={"LOW", "MED", "HIGH"}, nargs='?', const="HIGH",
                     default="HIGH", help="Select verbosity level of console output. Default = HIGH")
 args = parser.parse_args()
@@ -68,10 +68,16 @@ INTEGRATION_INTERVAL = args.integration_interval
 GAIN = args.gain
 IMG_WIDTH = args.image_width
 IMG_HEIGHT = args.image_height
+SUN_ALT = args.sun_alt
+SUN_AZ = args.sun_az
 
 # Calibration and position determination
 antAlt, antAz = calibrate(ANT_OFFSET_EL, ANT_OFFSET_AZ)
 sunAlt, sunAz = getSunPosition(LAT, LON)
+
+# If sun altitude and azimuth is specified, use that instead (testing)
+if (SUN_ALT != 400): sunAlt = SUN_ALT
+if (SUN_AZ != 400): sunAz = SUN_AZ
 
 # Calculate the starting Altitude and Azimuth based on the sun's position and image dimensions
 startingAlt = int(sunAlt - (IMG_HEIGHT / 2))
