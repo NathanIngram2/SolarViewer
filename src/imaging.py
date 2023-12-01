@@ -80,8 +80,8 @@ if (SUN_ALT != 400): sunAlt = SUN_ALT
 if (SUN_AZ != 400): sunAz = SUN_AZ
 
 # Calculate the starting Altitude and Azimuth based on the sun's position and image dimensions
-startingAlt = int(sunAlt - (IMG_HEIGHT / 2))
-startingAz = int(sunAz - (IMG_WIDTH / 2))
+startingAlt = sunAlt - (IMG_HEIGHT / 2)
+startingAz = sunAz - (IMG_WIDTH / 2)
 
 # Initial calculation of the difference in degrees between antenna and starting position
 diffAlt, diffAz, antAlt, antAz = getDifferenceDeg(antAlt, antAz, startingAlt, startingAz, ANT_OFFSET_EL, ANT_OFFSET_AZ)
