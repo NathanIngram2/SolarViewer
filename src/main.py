@@ -24,12 +24,10 @@ parser.add_argument('duration', type=str,
                     help='Duration of elapsed time taking data. Format HH:MM - HH(00-23):MM(00-59)')
 parser.add_argument('meas_interval', type=str,
                     help='Time in minutes between measurements. Format MM(0-59)')
-parser.add_argument('--elevation_offset', type=int, nargs='?', const=0, default=0,
-                    help='Specify primary lobes offset from horizontal in degrees (0 for horn, ~20 for dish). '
-                         'Default = 0')
-parser.add_argument('--azimuth_offset', type=int, nargs='?', const=0, default=0,
-                    help='Specify primary lobes offset from vertical in degrees. '
-                         'Default = 0')
+parser.add_argument('--elevation_offset', type=float, nargs='?', const=0, default=0,
+                    help='Specify primary lobes offset from horizontal in degrees (0 for horn, ~20 for dish). Default = 0')
+parser.add_argument('--azimuth_offset', type=float, nargs='?', const=0, default=0,
+                    help='Specify primary lobes offset from vertical in degrees. Default = 0')
 parser.add_argument('--integration_interval', type=str, nargs='?', const='1s', default='1s',
                     help='Integration integral of SDR power measurement. Ex. 1s, 1m, etc. Default = 1s')
 parser.add_argument('--freq_min', type=str, nargs='?', const='980M', default='980M',
@@ -49,9 +47,8 @@ args = parser.parse_args()
 # Setup Logging
 log = Log(args.verbose)
 
-DISH_ARM_ANGLE_CALIBRATION = 62.5
-
 # Constants and parsed arguments.
+DISH_ARM_ANGLE_CALIBRATION = 62.5
 LAT = args.latitude
 LON = args.longitude
 ANT_OFFSET_EL = args.elevation_offset
