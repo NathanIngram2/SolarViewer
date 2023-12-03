@@ -45,9 +45,9 @@ parser.add_argument('--image_width', type=int, nargs='?', const=8, default=8,
                     help='Height of image in degrees (int). Default = 8')
 parser.add_argument('--image_height', type=int, nargs='?', const=8, default=8,
                     help='Width of image in degrees (int). Default = 8')
-parser.add_argument('--sun_alt', type=float, nargs='?', const=400, default=400,
+parser.add_argument('--img_start_alt', type=float, nargs='?', const=400, default=400,
                     help='Starting altitude of the sun, manual input for testing. Ex. 22.5. Default = 400')
-parser.add_argument('--sun_az', type=float, nargs='?', const=400, default=400,
+parser.add_argument('--img_start_az', type=float, nargs='?', const=400, default=400,
                     help='Starting azimuth of the sun, manual input for testing. Ex. 22.5. Default = 400')
 parser.add_argument('--verbose', type=str, choices={"LOW", "MED", "HIGH"}, nargs='?', const="HIGH",
                     default="HIGH", help="Select verbosity level of console output. Default = HIGH")
@@ -68,20 +68,48 @@ INTEGRATION_INTERVAL = args.integration_interval
 GAIN = args.gain
 IMG_WIDTH = args.image_width
 IMG_HEIGHT = args.image_height
-SUN_ALT = args.sun_alt
-SUN_AZ = args.sun_az
+IMG_START_ALT = args.img_start_alt
+IMG_START_AZ = args.img_start_az
+
+LOWER_LIM_ALT = 0
+UPPER_LIM_ALT = 32
+LOWER_LIM_AZ = 0
+UPPER_LIM_AZ = 145
 
 # Calibration and position determination
 antAlt, antAz = calibrate(ANT_OFFSET_EL, ANT_OFFSET_AZ)
 sunAlt, sunAz = getSunPosition(LAT, LON)
 
-# If sun altitude and azimuth is specified, use that instead (testing)
-if (SUN_ALT != 400): sunAlt = SUN_ALT
-if (SUN_AZ != 400): sunAz = SUN_AZ
+# If image start altitude and azimuth is specified, use that instead (testing)
+# Otherwise calculate the starting Altitude and Azimuth based on the sun's position and image dimensions
+if (IMG_START_ALT != 400):
+    startingAlt = IMG_START_ALT
+else:
+    startingAlt = sunAlt - (IMG_HEIGHT / 2)
 
-# Calculate the starting Altitude and Azimuth based on the sun's position and image dimensions
-startingAlt = sunAlt - (IMG_HEIGHT / 2)
-startingAz = sunAz - (IMG_WIDTH / 2)
+if (IMG_START_AZ != 400):
+    startingAz = IMG_START_AZ
+else:
+    startingAz = sunAz - (IMG_WIDTH / 2)
+
+finalAlt = startingAlt + IMG_HEIGHT
+finalAz = startingAz + IMG_WIDTH
+
+# Checking that entire image is within limits before beginning
+Log.info("Checking bounds of image are within limits...")
+if finalAlt > (UPPER_LIM_ALT + offsetAlt) or finalAlt < (LOWER_LIM_ALT + offsetAlt):
+    Log.info("Image Final altitude - " + str(finalAlt) + " is out of range. Exiting")
+    exit()
+if startingAlt > (UPPER_LIM_ALT + offsetAlt) or startingAlt < (LOWER_LIM_ALT + offsetAlt):
+    Log.info("Image Starting altitude - " + str(startingAlt) + " is out of range. Exiting")
+    exit()
+if finalAz > (UPPER_LIM_AZ + offsetAz) or finalAz < (LOWER_LIM_ALT + offsetAlt):
+    Log.info("Image Final azimuth - " + str(finalAz) + " is out of range. Exiting")
+    exit()
+if startingAz > (UPPER_LIM_AZ + offsetAz) or startingAz < (LOWER_LIM_ALT + offsetAlt):
+    Log.info("Image Starting azimuth - " + str(startingAz) + " is out of range. Exiting")
+    exit()
+Log.info("All image bounds are within limits.")
 
 # Initial calculation of the difference in degrees between antenna and starting position
 diffAlt, diffAz, antAlt, antAz = getDifferenceDeg(antAlt, antAz, startingAlt, startingAz, ANT_OFFSET_EL, ANT_OFFSET_AZ)
