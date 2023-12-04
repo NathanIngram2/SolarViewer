@@ -27,7 +27,7 @@ parser.add_argument('meas_interval', type=str,
 parser.add_argument('--elevation_offset', type=float, nargs='?', const=0, default=0,
                     help='Specify primary lobes offset from horizontal in degrees (0 for horn, ~20 for dish). Default = 0')
 parser.add_argument('--azimuth_offset', type=float, nargs='?', const=0, default=0,
-                    help='Specify primary lobes offset from vertical in degrees. Default = 0')
+                    help='Specify primary lobes offset from north in degrees. Default = 0')
 parser.add_argument('--integration_interval', type=str, nargs='?', const='1s', default='1s',
                     help='Integration integral of SDR power measurement. Ex. 1s, 1m, etc. Default = 1s')
 parser.add_argument('--freq_min', type=str, nargs='?', const='980M', default='980M',
@@ -98,4 +98,4 @@ plt.show()
 # Save plot
 plotPower(timeData, powerData, savePlot=True)
 
-calibrate(ANT_OFFSET_EL)  # Return Al and Az rotators to zero position.
+calibrate(ANT_OFFSET_EL, ANT_OFFSET_AZ)  # Return Al and Az rotators to zero position.

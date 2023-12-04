@@ -28,7 +28,7 @@ parser = argparse.ArgumentParser(
 parser.add_argument('--elevation_offset', type=float, nargs='?', const=0, default=0,
                     help='Specify primary lobes offset from horizontal in degrees (0 for horn, ~20 for dish). Default = 0')
 parser.add_argument('--azimuth_offset', type=float, nargs='?', const=0, default=0,
-                    help='Specify primary lobes offset from vertical in degrees. Default = 0')
+                    help='Specify primary lobes offset from north in degrees. Default = 0')
 parser.add_argument('--integration_interval', type=str, nargs='?', const='1s', default='1s',
                     help='Integration integral of SDR power measurement. Ex. 1s, 1m, etc. Default = 1s')
 parser.add_argument('--freq_min', type=str, nargs='?', const='980M', default='980M',
@@ -82,12 +82,12 @@ sunAlt, sunAz = getSunPosition(LAT, LON)
 
 # If image start altitude and azimuth is specified, use that instead (testing)
 # Otherwise calculate the starting Altitude and Azimuth based on the sun's position and image dimensions
-if (IMG_START_ALT != 400):
+if IMG_START_ALT != 400:
     startingAlt = IMG_START_ALT
 else:
     startingAlt = sunAlt - (IMG_HEIGHT / 2)
 
-if (IMG_START_AZ != 400):
+if IMG_START_AZ != 400:
     startingAz = IMG_START_AZ
 else:
     startingAz = sunAz - (IMG_WIDTH / 2)
@@ -97,17 +97,17 @@ finalAz = startingAz + IMG_WIDTH
 
 # Checking that entire image is within limits before beginning
 Log.info("Checking bounds of image are within limits...")
-if finalAlt > (UPPER_LIM_ALT + offsetAlt) or finalAlt < (LOWER_LIM_ALT + offsetAlt):
-    Log.info("Image Final altitude - " + str(finalAlt) + " is out of range. Exiting")
+if finalAlt > (UPPER_LIM_ALT + ANT_OFFSET_EL) or finalAlt < (LOWER_LIM_ALT + ANT_OFFSET_EL):
+    Log.error("Image Final altitude - " + str(finalAlt) + " is out of range. Exiting")
     exit()
-if startingAlt > (UPPER_LIM_ALT + offsetAlt) or startingAlt < (LOWER_LIM_ALT + offsetAlt):
-    Log.info("Image Starting altitude - " + str(startingAlt) + " is out of range. Exiting")
+if startingAlt > (UPPER_LIM_ALT + ANT_OFFSET_EL) or startingAlt < (LOWER_LIM_ALT + ANT_OFFSET_EL):
+    Log.error("Image Starting altitude - " + str(startingAlt) + " is out of range. Exiting")
     exit()
-if finalAz > (UPPER_LIM_AZ + offsetAz) or finalAz < (LOWER_LIM_ALT + offsetAlt):
-    Log.info("Image Final azimuth - " + str(finalAz) + " is out of range. Exiting")
+if finalAz > (UPPER_LIM_AZ + ANT_OFFSET_AZ) or finalAz < (LOWER_LIM_AZ + ANT_OFFSET_AZ):
+    Log.error("Image Final azimuth - " + str(finalAz) + " is out of range. Exiting")
     exit()
-if startingAz > (UPPER_LIM_AZ + offsetAz) or startingAz < (LOWER_LIM_ALT + offsetAlt):
-    Log.info("Image Starting azimuth - " + str(startingAz) + " is out of range. Exiting")
+if startingAz > (UPPER_LIM_AZ + ANT_OFFSET_AZ) or startingAz < (LOWER_LIM_AZ + ANT_OFFSET_AZ):
+    Log.error("Image Starting azimuth - " + str(startingAz) + " is out of range. Exiting")
     exit()
 Log.info("All image bounds are within limits.")
 
