@@ -11,6 +11,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 import time
 import datetime
+import os
 
 from dataCollection import measPower
 from tracking import calibrate, getSunPosition, getDifferenceDeg, moveStepper
@@ -54,7 +55,7 @@ parser.add_argument('--verbose', type=str, choices={"LOW", "MED", "HIGH"}, nargs
 args = parser.parse_args()
 
 # Setup Logging
-log = Log(args.verbose)
+log = Log(args, os.path.realpath(__file__))
 
 # Constants and parsed arguments.
 DISH_ARM_ANGLE_CALIBRATION = 62.5
@@ -137,8 +138,10 @@ for i in range(IMG_HEIGHT):
     moveStepper(diffAlt, 0)
 
 # Save the collected data to a CSV file with a timestamp
-np.savetxt("ImageData" + str(datetime.datetime.now().strftime("%Y%m%d%H%M%S")) + ".csv", data, delimiter=",")
+np.savetxt(os.path.join(Log.logDirPath, "ImageData" + str(datetime.datetime.now().strftime("%Y%m%d%H%M%S")) + ".csv"),
+           data, delimiter=",")
 
 # Display the collected data as an image
 plt.imshow(data, origin='lower', interpolation=None)
+plt.savefig(os.path.join(Log.logDirPath, "figure.png"))
 plt.show()

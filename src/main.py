@@ -7,7 +7,7 @@ Description: Main program for the Solar Eclipse Viewer project for ENPH454 @ Que
 
 # Package imports
 import argparse
-import time
+import os
 import datetime
 import matplotlib.pyplot as plt
 
@@ -45,7 +45,7 @@ parser.add_argument('--verbose', type=str, choices={"LOW", "MED", "HIGH"}, nargs
 args = parser.parse_args()
 
 # Setup Logging
-log = Log(args.verbose)
+log = Log(args, os.path.realpath(__file__))
 
 # Constants and parsed arguments.
 DISH_ARM_ANGLE_CALIBRATION = 62.5

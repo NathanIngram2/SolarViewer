@@ -17,31 +17,35 @@ class Log:
     logDirPath = None
     logFilePath = None
     logFile = None
-    def __init__(self, verbosity):
+
+    def __init__(self, args, callingFile):
         """
         Initialize the logging utility with a specified verbosity level.
 
         :param verbosity: Verbosity level (LOW, MED, HIGH).
         """
-        Log.VERBOSE = verbosity
+        Log.VERBOSE = args.verbose
 
         Log.strDateTime = str(datetime.datetime.now().strftime("%Y%m%d%H%M%S"))
 
         Log.logDirPath = os.path.join("Log", Log.strDateTime)
-        os.mkdir(Log.logDirPath)
+        try:
+            os.mkdir(Log.logDirPath)
+        except FileNotFoundError:
+            os.mkdir("Log")
+            os.mkdir(Log.logDirPath)
 
         Log.logFilePath = os.path.join(Log.logDirPath, "LOG" + Log.strDateTime + ".txt")
         Log.logFile = open(Log.logFilePath, "x")
+        Log.logFile.write("Run from " + callingFile + "\n" + str(args).replace("Namespace(", "Command Line Args:")
+                          .replace(")", "\n\n------------------------------------------------------\n\n"))
         Log.logFile.close()
-
-    def getLogDirPath(self):
-        return Log.logDirPath
 
     # Low priority info log
     @staticmethod
     def info(msg):
         Log.logFile = open(Log.logFilePath, "a")
-        Log.logFile.write(str(datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")) + " INFO: " + msg)
+        Log.logFile.write(str(datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")) + " INFO: " + msg + "\n")
         Log.logFile.close()
         if Log.VERBOSE == "HIGH":
             print("INFO: " + msg)
@@ -51,7 +55,7 @@ class Log:
     @staticmethod
     def warn(msg):
         Log.logFile = open(Log.logFilePath, "a")
-        Log.logFile.write(str(datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")) + " WARN: " + msg)
+        Log.logFile.write(str(datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")) + " WARN: " + msg + "\n")
         Log.logFile.close()
         if Log.VERBOSE == "HIGH" or Log.VERBOSE == "MED":
             print("WARN: " + msg)
@@ -61,6 +65,6 @@ class Log:
     @staticmethod
     def error(msg):
         Log.logFile = open(Log.logFilePath, "a")
-        Log.logFile.write(str(datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")) + " ERROR: " + msg)
+        Log.logFile.write(str(datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")) + " ERROR: " + msg + "\n")
         Log.logFile.close()
         print("ERROR: " + msg)
