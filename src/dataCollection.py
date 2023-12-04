@@ -9,6 +9,7 @@ for ENPH454 @ Queen's University, Kingston ON.
 import subprocess as sp
 import pandas as pd
 import matplotlib.pyplot as plt
+import os
 from utilities import Log
 
 
@@ -97,7 +98,7 @@ def plotPower(timeData, powerData, savePlot=False):
     plt.draw()
 
     if savePlot == True:
-        plt.savefig('plot.png')
+        plt.savefig(os.path.join(Log.logDirPath, 'plot.png'))
 
     Log.info("End plotPower")
     return
