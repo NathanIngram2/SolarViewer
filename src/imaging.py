@@ -117,7 +117,7 @@ diffAlt, diffAz, antAlt, antAz = getDifferenceDeg(antAlt, antAz, startingAlt, st
 degErrorAlt, degErrorAz = moveStepper(diffAlt, diffAz)
 
 # Initialize a 2D array to store the data collected
-data = np.zeros((IMG_WIDTH, IMG_HEIGHT))
+data = np.zeros((IMG_HEIGHT, IMG_WIDTH))
 
 # Data collection loop, scanning over the specified range in Altitude and Azimuth
 for i in range(IMG_HEIGHT):
@@ -130,7 +130,7 @@ for i in range(IMG_HEIGHT):
             time.sleep(0.2)
     else:
         for j in range(IMG_WIDTH):
-            data[i][j] = measPower(FREQ_MIN, FREQ_MAX, INTEGRATION_INTERVAL, GAIN)
+            data[i][IMG_WIDTH-j-1] = measPower(FREQ_MIN, FREQ_MAX, INTEGRATION_INTERVAL, GAIN)
             diffAlt, diffAz, antAlt, antAz = getDifferenceDeg(antAlt, antAz, antAlt, antAz - 1, ANT_OFFSET_EL, ANT_OFFSET_AZ)
             moveStepper(0, diffAz)
             time.sleep(0.2)
