@@ -44,3 +44,6 @@ python stepperTest.py
 ```
 
 Replace `stepperTest.py` with the name of the script you wish to run.
+
+## License
+SolarViewer is licensed under [GPLv3](LICENSE).
