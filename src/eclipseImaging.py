@@ -89,6 +89,9 @@ UPPER_LIM_ALT = 32
 LOWER_LIM_AZ = 0
 UPPER_LIM_AZ = 145
 
+ECLIPSE_START_TIME = datetime.datetime(2024,04,08,14,09,00) # Starts at 2:09pm
+ECLIPSE_END_TIME = datetime.datetime(2024,04,08,16,35,00) # Starts at 2:09pm
+
 duration_hrs = int(DUR.split(":")[0])
 current_time = datetime.datetime.now(tz=None)
 duration_hrs_min = datetime.timedelta(hours=duration_hrs)
@@ -134,6 +137,11 @@ while current_time < end_time:
     plt.imshow(data, origin='lower', interpolation=None)
     plt.savefig(os.path.join(Log.logDirPath, "figure.png"))
     plt.show()
+
+    current_time = datetime.datetime.now(tz=None)
+
+    if(ECLIPSE_START_TIME >= current_time or ECLIPSE_END_TIME <= current_time):
+        plt.pause(meas_interval)
 
 
 def moveAndTakeImage(antAlt, antAz, startingAlt, startingAz):
