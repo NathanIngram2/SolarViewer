@@ -42,7 +42,7 @@ parser = argparse.ArgumentParser(
     description='Solar Viewer is designed to measure microwave radiation from the sun. This'
                 ' program controls tracking the sun, collecting data, and data analysis.')
 
-parser.add_argument('--elevation_offset', type=float, nargs='?', const=0, default=0,
+parser.add_argument('--elevation_offset', type=float, nargs='?', const=0, default=22.5,
                     help='Specify primary lobes offset from horizontal in degrees (0 for horn, ~20 for dish). Default = 0')
 parser.add_argument('--azimuth_offset', type=float, nargs='?', const=0, default=0,
                     help='Specify primary lobes offset from north in degrees. Default = 0')
@@ -74,7 +74,7 @@ args = parser.parse_args()
 log = Log(args, os.path.realpath(__file__))
 
 # Constants and parsed arguments.
-DISH_ARM_ANGLE_CALIBRATION = 62.5
+DISH_ARM_ANGLE_CALIBRATION = 47.5 # Updated March 28 after testing
 LAT = args.latitude
 LON = args.longitude
 ANT_OFFSET_EL = args.elevation_offset
