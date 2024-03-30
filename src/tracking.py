@@ -67,17 +67,25 @@ def calibrate(offsetAlt, offsetAz):
     :return: Starting altitude and azimuth of the antenna in degrees. (0,0)
     """
     Log.info("Starting Calibration...")
+
+    alt_step = -0.05
+    az_step = -0.12
+
+    total_alt = 0
+    total_az = 0
+
     # Altitude calibration
     while GPIO.input(LIM_ALT) != GPIO.HIGH:
-        moveStepper(-0.05, 0)
+        moveStepper(alt_step, 0, cal_flag=True)
         time.sleep(0.001)
-
+        total_alt += alt_step
     # Azimuth calibration
     while GPIO.input(LIM_AZ) != GPIO.HIGH:
-        moveStepper(0, -0.12)
+        moveStepper(0, az_step, cal_flag=True)
         time.sleep(0.001)
+        total_az += az_step
 
-    Log.info("Done Calibration.")
+    Log.info(f"Done Calibration. Moved {total_alt} deg in altitude, {total_az} deg in azimuth.")
     return offsetAlt, offsetAz
 
 
@@ -115,7 +123,7 @@ def getDifferenceDeg(antAlt, antAz, sunAlt, sunAz, offsetAlt, offsetAz):
     :param offsetAz: Offset azimuth of the antenna in degrees. (float)
     :return: Difference in altitude and azimuth between antenna and sun in degrees. (float)
     """
-    Log.info("Starting getDifferenceDeg...")
+    #Log.info("Starting getDifferenceDeg...")
     if sunAlt >= (LOWER_LIM_ALT + offsetAlt):
         if sunAlt <= (UPPER_LIM_ALT + offsetAlt):
             diffAlt = sunAlt - antAlt
@@ -141,7 +149,7 @@ def getDifferenceDeg(antAlt, antAz, sunAlt, sunAz, offsetAlt, offsetAz):
             LOWER_LIM_AZ + offsetAz) + ", moving to lower limit")
 
     Log.info("Degrees to move in altitude: " + str(diffAlt) + " Degrees to move in azimuth: " + str(diffAz))
-    Log.info("Done getDifferenceDeg.")
+    #Log.info("Done getDifferenceDeg.")
 
     updatedAntAlt = antAlt + diffAlt
     updatedAntAz = antAz + diffAz
@@ -149,15 +157,17 @@ def getDifferenceDeg(antAlt, antAz, sunAlt, sunAz, offsetAlt, offsetAz):
     return diffAlt, diffAz, updatedAntAlt, updatedAntAz
 
 
-def moveStepper(diffAlt, diffAz):
+def moveStepper(diffAlt, diffAz, cal_flag=False):
+    """"""
     """
     Move the stepper motor based on the difference in altitude and azimuth.
 
     :param diffAlt: Difference in altitude between antenna and sun in degrees.
     :param diffAz: Difference in azimuth between antenna and sun in degrees.
+    :param cal_flag: Flag to indicate if moveStepper is being called from calibration. Does not log if True
     :return: None
     """
-    Log.info("Starting moveStepper")
+    #Log.info("Starting moveStepper")
 
     if diffAz < 0:
         GPIO.output(DIR_AZ, CW)
@@ -191,9 +201,10 @@ def moveStepper(diffAlt, diffAz):
     degErrorAlt = stepsAltInt - stepsAlt
     degErrorAz = stepsAzInt - stepsAz
 
-    Log.info("Stepper motor moved. Altitude change: " + str(diffAlt) + " degrees, Azimuth change: " + str(
-        diffAz) + " degrees")
-    Log.info("Done moveStepper")
+    if not cal_flag:
+        Log.info("Stepper motor moved, Altitude change: " + str(diffAlt) + " degrees, Azimuth change: " + str(
+            diffAz) + " degrees")
+    #Log.info("Done moveStepper")
 
     return degErrorAlt, degErrorAz
 

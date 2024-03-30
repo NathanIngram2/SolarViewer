@@ -68,6 +68,8 @@ parser.add_argument('--el_step', type=float, nargs='?', const=1, default=1,
                     help='Angle in degrees to move between elevation pixels. Default = 1')
 parser.add_argument('--verbose', type=str, choices={"LOW", "MED", "HIGH"}, nargs='?', const="HIGH",
                     default="HIGH", help="Select verbosity level of console output. Default = HIGH")
+parser.add_argument('--stabilization_time', type=float, nargs='?', const=0.2, default=0.2,
+                    help='Time in seconds to wait before taking a measurement after moving the steppers. Default = 0.2')
 args = parser.parse_args()
 
 # Setup Logging
@@ -109,13 +111,14 @@ meas_interval = int(float(MEAS_INTERVAL) * 60)
 antAlt, antAz = calibrate(ANT_OFFSET_EL, ANT_OFFSET_AZ)
 
 def moveAndTakeImage(antAlt, antAz, startingAlt, startingAz):
+    Log.info(f"Moving to image start point: alt={startingAlt}, az={startingAz}")
     # Initial calculation of the difference in degrees between antenna and starting position
     diffAlt, diffAz, antAlt, antAz = getDifferenceDeg(antAlt, antAz, startingAlt, startingAz, ANT_OFFSET_EL, ANT_OFFSET_AZ)
     degErrorAlt, degErrorAz = moveStepper(diffAlt, diffAz)
 
     # Initialize a 2D array to store the data collected
     data = np.zeros((IMG_HEIGHT, IMG_WIDTH))
-
+    Log.info("Beginning image scan.")
     # Data collection loop, scanning over the specified range in Altitude and Azimuth
     for i in range(IMG_HEIGHT):
         Log.info(f"Begining row {i}")
