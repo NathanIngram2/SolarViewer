@@ -26,6 +26,9 @@ import RPi.GPIO as GPIO
 from astropy.time import Time
 from astropy.coordinates import get_sun, AltAz, EarthLocation
 from utilities import Log
+import pickle
+import datetime
+import numpy as np
 
 DIR_AZ = 10  # Azimuth stepper motor direction pin from controller
 STEP_AZ = 8  # Azimuth stepper motor pin from controller
@@ -109,6 +112,19 @@ def getSunPosition(lat, lon):
     Log.info("Done getSunPosition.")
 
     return relSunPos.alt.deg, relSunPos.az.deg
+
+def getSunPositionFromPickle():
+    """
+    Get the altitude and azimuth from a pickled file containing a list of datetime objects, a list of azimuth,
+    and a list of elevation. Method selects the entry closest in time to the current time. The list should have
+    a maximum step size of 10 seconds.
+    :return: Sun position in degrees. Alt, Az (float)
+    """
+    with open("./../bin/April8Eclipse.pickle", 'rb') as handle:
+        sunPos = pickle.load(handle)
+    target_date = datetime.datetime.utcnow()
+    idex = np.argmin(np.abs(sunPos[0] - target_date))
+    return sunPos[2][idex], sunPos[1][idex]
 
 
 def getDifferenceDeg(antAlt, antAz, sunAlt, sunAz, offsetAlt, offsetAz):

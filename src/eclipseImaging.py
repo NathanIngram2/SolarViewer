@@ -33,7 +33,7 @@ import pickle
 
 # Method imports
 from dataCollection import measPower
-from tracking import calibrate, getSunPosition, getDifferenceDeg, moveStepper
+from tracking import calibrate, getSunPositionFromPickle, getDifferenceDeg, moveStepper
 from utilities import Log
 
 parser = argparse.ArgumentParser(
@@ -172,7 +172,7 @@ def moveAndTakeImage(antAlt, antAz, startingAlt, startingAz):
                 file.write(f"{time_data[i][j]},{az_data[i][j]},{alt_data[i][j]},{power_data[i][j]}\n")
                 file.close()
                 diffAlt, diffAz, antAlt, antAz = getDifferenceDeg(antAlt, antAz, antAlt, antAz + AZ_STEP, ANT_OFFSET_EL, ANT_OFFSET_AZ)
-                tmpSunAlt, tmpSunAz = getSunPosition(LAT, LON)
+                tmpSunAlt, tmpSunAz = getSunPositionFromPickle()
                 socket_send({"id" : "pt", "sun_az" : tmpSunAz, "sun_alt" : tmpSunAlt, "telescope_az" : antAz, "telescope_alt" : antAlt,
                              "time" : now, "power" : power_data[i][j]})
                 moveStepper(0, diffAz)
@@ -188,7 +188,7 @@ def moveAndTakeImage(antAlt, antAz, startingAlt, startingAz):
                 file.write(f"{time_data[i][IMG_WIDTH-j-1]},{az_data[i][IMG_WIDTH-j-1]},{alt_data[i][IMG_WIDTH-j-1]},{power_data[i][IMG_WIDTH-j-1]}\n")
                 file.close()
                 diffAlt, diffAz, antAlt, antAz = getDifferenceDeg(antAlt, antAz, antAlt, antAz - AZ_STEP, ANT_OFFSET_EL, ANT_OFFSET_AZ)
-                tmpSunAlt, tmpSunAz = getSunPosition(LAT, LON)
+                tmpSunAlt, tmpSunAz = getSunPositionFromPickle()
                 socket_send({"id": "pt", "sun_az": tmpSunAz, "sun_alt": tmpSunAlt, "telescope_az": antAz,
                              "telescope_alt": antAlt,
                              "time": now, "power": power_data[i][IMG_WIDTH-j-1]})
@@ -209,7 +209,7 @@ def moveAndTakeImage(antAlt, antAz, startingAlt, startingAz):
     return full_data, antAlt, antAz
 
 while current_time < end_time:
-    sunAlt, sunAz = getSunPosition(LAT, LON)
+    sunAlt, sunAz = getSunPositionFromPickle()
 
     # Calculate the starting Altitude and Azimuth based on the sun's position and image dimensions
     startingAlt = sunAlt - (IMG_HEIGHT / 2)
