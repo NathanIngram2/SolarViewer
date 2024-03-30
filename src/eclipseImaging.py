@@ -85,6 +85,8 @@ INTEGRATION_INTERVAL = args.integration_interval
 GAIN = args.gain
 IMG_WIDTH = args.image_width
 IMG_HEIGHT = args.image_height
+AZ_STEP = args.az_step
+EL_STEP = args.el_step
 DUR = args.duration
 MEAS_INTERVAL = args.meas_interval
 
@@ -121,16 +123,16 @@ def moveAndTakeImage(antAlt, antAz, startingAlt, startingAz):
         if i % 2 == 0:
             for j in range(IMG_WIDTH):
                 data[i][j] = measPower(FREQ_MIN, FREQ_MAX, INTEGRATION_INTERVAL, GAIN)
-                diffAlt, diffAz, antAlt, antAz = getDifferenceDeg(antAlt, antAz, antAlt, antAz + 1, ANT_OFFSET_EL, ANT_OFFSET_AZ)
+                diffAlt, diffAz, antAlt, antAz = getDifferenceDeg(antAlt, antAz, antAlt, antAz + AZ_STEP, ANT_OFFSET_EL, ANT_OFFSET_AZ)
                 moveStepper(0, diffAz)
                 time.sleep(0.2)
         else:
             for j in range(IMG_WIDTH):
                 data[i][IMG_WIDTH-j-1] = measPower(FREQ_MIN, FREQ_MAX, INTEGRATION_INTERVAL, GAIN)
-                diffAlt, diffAz, antAlt, antAz = getDifferenceDeg(antAlt, antAz, antAlt, antAz - 1, ANT_OFFSET_EL, ANT_OFFSET_AZ)
+                diffAlt, diffAz, antAlt, antAz = getDifferenceDeg(antAlt, antAz, antAlt, antAz - AZ_STEP, ANT_OFFSET_EL, ANT_OFFSET_AZ)
                 moveStepper(0, diffAz)
                 time.sleep(0.2)
-        diffAlt, diffAz, antAlt, antAz = getDifferenceDeg(antAlt, antAz, antAlt + 1, antAz, ANT_OFFSET_EL, ANT_OFFSET_AZ)
+        diffAlt, diffAz, antAlt, antAz = getDifferenceDeg(antAlt, antAz, antAlt + EL_STEP, antAz, ANT_OFFSET_EL, ANT_OFFSET_AZ)
         moveStepper(diffAlt, 0)
 
     return data, antAlt, antAz
