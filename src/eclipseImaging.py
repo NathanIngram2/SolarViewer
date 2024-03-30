@@ -28,6 +28,7 @@ import matplotlib.pyplot as plt
 import time
 import datetime
 import os
+import socket
 
 # Method imports
 from dataCollection import measPower
@@ -70,6 +71,10 @@ parser.add_argument('--verbose', type=str, choices={"LOW", "MED", "HIGH"}, nargs
                     default="HIGH", help="Select verbosity level of console output. Default = HIGH")
 parser.add_argument('--stabilization_time', type=float, nargs='?', const=0.2, default=0.2,
                     help='Time in seconds to wait before taking a measurement after moving the steppers. Default = 0.2')
+parser.add_argument('--plot_figure', type=int, nargs='?', const=0, default=0,
+                    help='Flag to select if plot should be generated. 0 = False, 1 = True. Default = 0')
+parser.add_argument('--socket_host', type=str, nargs='?',
+                    help='Specify the hostname for the machine receiving data. No Default.')
 args = parser.parse_args()
 
 # Setup Logging
@@ -91,6 +96,13 @@ AZ_STEP = args.az_step
 EL_STEP = args.el_step
 DUR = args.duration
 MEAS_INTERVAL = args.meas_interval
+STAB_TIME = args.stabilization_time
+PLOT_FLAG = args.plot_figure
+SOCKET_HOST = args.socket_host
+
+#with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
+#    s.connect((SOCKET_HOST, 65432))
+
 
 LOWER_LIM_ALT = 0
 UPPER_LIM_ALT = 32
@@ -117,28 +129,62 @@ def moveAndTakeImage(antAlt, antAz, startingAlt, startingAz):
     degErrorAlt, degErrorAz = moveStepper(diffAlt, diffAz)
 
     # Initialize a 2D array to store the data collected
-    data = np.zeros((IMG_HEIGHT, IMG_WIDTH))
+    power_data = np.zeros((IMG_HEIGHT, IMG_WIDTH))
+    az_data = np.zeros((IMG_HEIGHT, IMG_WIDTH))
+    alt_data = np.zeros((IMG_HEIGHT, IMG_WIDTH))
+    time_data = np.zeros((IMG_HEIGHT, IMG_WIDTH))
+
+    # Setup file to write to
+    fmt_start_time = str(datetime.datetime.now().strftime("%Y%m%d%H%M%S"))
+    save_data_path = "ImageData" + fmt_start_time + ".csv"
+    file = open(save_data_path, 'w')
+    file.write("time,az,alt,power")
+    file.close()
+    Log.info("Created file " + save_data_path + " to store all image data (time, az, alt, power).")
+
     Log.info("Beginning image scan.")
+    image_start_time = time.time()
     # Data collection loop, scanning over the specified range in Altitude and Azimuth
     for i in range(IMG_HEIGHT):
         Log.info(f"Begining row {i}")
         # Alternate scanning direction for each row to improve efficiency
         if i % 2 == 0:
             for j in range(IMG_WIDTH):
-                data[i][j] = measPower(FREQ_MIN, FREQ_MAX, INTEGRATION_INTERVAL, GAIN)
+                time_data[i][j] = str(datetime.datetime.now().strftime("%Y%m%d%H%M%S"))
+                power_data[i][j] = measPower(FREQ_MIN, FREQ_MAX, INTEGRATION_INTERVAL, GAIN)
+                az_data[i][j] = antAz
+                alt_data[i][j] = antAlt
+                file = open(save_data_path, 'a')
+                file.write(f"{time_data[i][j]},{az_data[i][j]},{alt_data[i][j]},{power_data[i][j]}\n")
+                file.close()
                 diffAlt, diffAz, antAlt, antAz = getDifferenceDeg(antAlt, antAz, antAlt, antAz + AZ_STEP, ANT_OFFSET_EL, ANT_OFFSET_AZ)
                 moveStepper(0, diffAz)
-                time.sleep(0.2)
+                time.sleep(STAB_TIME)
         else:
             for j in range(IMG_WIDTH):
-                data[i][IMG_WIDTH-j-1] = measPower(FREQ_MIN, FREQ_MAX, INTEGRATION_INTERVAL, GAIN)
+                time_data[i][IMG_WIDTH-j-1] = str(datetime.datetime.now().strftime("%Y%m%d%H%M%S"))
+                power_data[i][IMG_WIDTH-j-1] = measPower(FREQ_MIN, FREQ_MAX, INTEGRATION_INTERVAL, GAIN)
+                az_data[i][IMG_WIDTH-j-1] = antAz
+                alt_data[i][IMG_WIDTH-j-1] = antAlt
+                file = open(save_data_path, 'a')
+                file.write(f"{time_data[i][IMG_WIDTH-j-1]},{az_data[i][IMG_WIDTH-j-1]},{alt_data[i][IMG_WIDTH-j-1]},{power_data[i][IMG_WIDTH-j-1]}\n")
+                file.close()
                 diffAlt, diffAz, antAlt, antAz = getDifferenceDeg(antAlt, antAz, antAlt, antAz - AZ_STEP, ANT_OFFSET_EL, ANT_OFFSET_AZ)
                 moveStepper(0, diffAz)
-                time.sleep(0.2)
+                time.sleep(STAB_TIME)
         diffAlt, diffAz, antAlt, antAz = getDifferenceDeg(antAlt, antAz, antAlt + EL_STEP, antAz, ANT_OFFSET_EL, ANT_OFFSET_AZ)
         moveStepper(diffAlt, 0)
+    image_end_time = time.time()
+    Log.info(f"Image completed in {image_end_time-image_start_time}s, {(image_end_time-image_start_time)/(IMG_WIDTH*IMG_HEIGHT)}s per pixel")
+    # Save the collected data to a CSV file with a timestamp
+    save_data_p_only_path = "ImageDataPowerOnly" + fmt_start_time + ".csv"
+    np.savetxt(os.path.join(Log.logDirPath, save_data_p_only_path),
+               power_data, delimiter=",")
+    Log.info("Image data (power only) saved to: " + save_data_p_only_path)
 
-    return data, antAlt, antAz
+    full_data = {"time" : time_data, "az" : az_data, "alt" : alt_data, "power" : power_data}
+
+    return full_data, antAlt, antAz
 
 while current_time < end_time:
     sunAlt, sunAz = getSunPosition(LAT, LON)
@@ -165,21 +211,16 @@ while current_time < end_time:
         exit()
     Log.info("All image bounds are within limits.")
 
-    data, antAlt, antAz = moveAndTakeImage(antAlt, antAz, startingAlt, startingAz)
-    Log.info("Image complete")
-    Log.info("Saving data")
+    full_data, antAlt, antAz = moveAndTakeImage(antAlt, antAz, startingAlt, startingAz)
 
-    # Save the collected data to a CSV file with a timestamp
-    save_data_path = "ImageData" + str(datetime.datetime.now().strftime("%Y%m%d%H%M%S")) + ".csv"
-    np.savetxt(os.path.join(Log.logDirPath, save_data_path),
-               data, delimiter=",")
-    Log.info("Image data saved to: " + save_data_path)
 
-    Log.info("Generating plot...")
-    # Display the collected data as an image
-    plt.imshow(data, origin='lower', interpolation=None)
-    plt.savefig(os.path.join(Log.logDirPath, "figure.png"))
-    plt.show()
+
+    if PLOT_FLAG == 1:
+        Log.info("Generating plot...")
+        # Display the collected data as an image
+        plt.imshow(full_data["power"], origin='lower', interpolation=None)
+        plt.savefig(os.path.join(Log.logDirPath, "figure.png"))
+        plt.show()
 
     current_time = datetime.datetime.now(tz=None)
 
