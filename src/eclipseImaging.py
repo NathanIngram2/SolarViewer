@@ -109,7 +109,7 @@ def socket_send(data):
         s.sendall(pickle.dumps(data))
         s.close()
 
-socket_send("s")
+socket_send({"id" : "s"})
 
 LOWER_LIM_ALT = 0
 UPPER_LIM_ALT = 32
@@ -235,4 +235,4 @@ while current_time < end_time:
         Log.info(f"Waiting {meas_interval} seconds")
         plt.pause(meas_interval)
 
-socket_send("b")
+socket_send({"id" : "b"})
