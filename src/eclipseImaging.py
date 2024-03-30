@@ -62,6 +62,10 @@ parser.add_argument('--image_width', type=int, nargs='?', const=8, default=8,
                     help='Height of image in degrees (int). Default = 8')
 parser.add_argument('--image_height', type=int, nargs='?', const=8, default=8,
                     help='Width of image in degrees (int). Default = 8')
+parser.add_argument('--az_step', type=float, nargs='?', const=1, default=1,
+                    help='Angle in degrees to move between azimuth pixels. Default = 1')
+parser.add_argument('--el_step', type=float, nargs='?', const=1, default=1,
+                    help='Angle in degrees to move between elevation pixels. Default = 1')
 parser.add_argument('--verbose', type=str, choices={"LOW", "MED", "HIGH"}, nargs='?', const="HIGH",
                     default="HIGH", help="Select verbosity level of console output. Default = HIGH")
 args = parser.parse_args()
@@ -112,6 +116,7 @@ def moveAndTakeImage(antAlt, antAz, startingAlt, startingAz):
 
     # Data collection loop, scanning over the specified range in Altitude and Azimuth
     for i in range(IMG_HEIGHT):
+        Log.info(f"Begining row {i}")
         # Alternate scanning direction for each row to improve efficiency
         if i % 2 == 0:
             for j in range(IMG_WIDTH):
@@ -156,11 +161,16 @@ while current_time < end_time:
     Log.info("All image bounds are within limits.")
 
     data, antAlt, antAz = moveAndTakeImage(antAlt, antAz, startingAlt, startingAz)
+    Log.info("Image complete")
+    Log.info("Saving data")
 
     # Save the collected data to a CSV file with a timestamp
-    np.savetxt(os.path.join(Log.logDirPath, "ImageData" + str(datetime.datetime.now().strftime("%Y%m%d%H%M%S")) + ".csv"),
+    save_data_path = "ImageData" + str(datetime.datetime.now().strftime("%Y%m%d%H%M%S")) + ".csv"
+    np.savetxt(os.path.join(Log.logDirPath, save_data_path),
                data, delimiter=",")
+    Log.info("Image data saved to: " + save_data_path)
 
+    Log.info("Generating plot...")
     # Display the collected data as an image
     plt.imshow(data, origin='lower', interpolation=None)
     plt.savefig(os.path.join(Log.logDirPath, "figure.png"))
@@ -169,5 +179,6 @@ while current_time < end_time:
     current_time = datetime.datetime.now(tz=None)
 
     if(ECLIPSE_START_TIME >= current_time or ECLIPSE_END_TIME <= current_time):
+        Log.info(f"Waiting {meas_interval} seconds")
         plt.pause(meas_interval)
 
