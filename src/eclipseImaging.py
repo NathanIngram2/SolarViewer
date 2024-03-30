@@ -38,12 +38,12 @@ parser = argparse.ArgumentParser(
     description='Solar Viewer is designed to measure microwave radiation from the sun. This'
                 ' program controls tracking the sun, collecting data, and data analysis.')
 
-parser.add_argument('duration', type=str, nargs='?', const=3, default = 3
+parser.add_argument('duration', type=str, nargs='?', const=3, default = 3,
                     help='Duration of elapsed time taking data. Format HH - HH(00-23)')
-parser.add_argument('meas_interval', type=str, nargs='?', const=5, default = 5
+parser.add_argument('meas_interval', type=str, nargs='?', const=5, default = 5,
                     help='Time in minutes between measurements. Format MM(0-59)')
 parser.add_argument('--elevation_offset', type=float, nargs='?', const=0, default=22.5,
-                    help='Specify primary lobes offset from horizontal in degrees (0 for horn, ~20 for dish). Default = 0')
+                    help='Specify primary lobes offset from horizontal in degrees. Default = 22.5')
 parser.add_argument('--azimuth_offset', type=float, nargs='?', const=0, default=0,
                     help='Specify primary lobes offset from north in degrees. Default = 0')
 parser.add_argument('--integration_interval', type=str, nargs='?', const='1s', default='1s',
@@ -89,8 +89,8 @@ UPPER_LIM_ALT = 32
 LOWER_LIM_AZ = 0
 UPPER_LIM_AZ = 145
 
-ECLIPSE_START_TIME = datetime.datetime(2024,04,08,14,09,00) # Starts at 2:09pm
-ECLIPSE_END_TIME = datetime.datetime(2024,04,08,16,35,00) # Starts at 2:09pm
+ECLIPSE_START_TIME = datetime.datetime(2024,4,8,14,9,00) # Starts at 2:09pm
+ECLIPSE_END_TIME = datetime.datetime(2024,4,8,16,35,00) # Starts at 2:09pm
 
 duration_hrs = int(DUR.split(":")[0])
 current_time = datetime.datetime.now(tz=None)

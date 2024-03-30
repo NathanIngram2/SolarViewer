@@ -43,7 +43,7 @@ parser = argparse.ArgumentParser(
                 ' program controls tracking the sun, collecting data, and data analysis.')
 
 parser.add_argument('--elevation_offset', type=float, nargs='?', const=0, default=22.5,
-                    help='Specify primary lobes offset from horizontal in degrees (0 for horn, ~20 for dish). Default = 0')
+                    help='Specify primary lobes offset from horizontal in degrees. Default = 22.5')
 parser.add_argument('--azimuth_offset', type=float, nargs='?', const=0, default=0,
                     help='Specify primary lobes offset from north in degrees. Default = 0')
 parser.add_argument('--integration_interval', type=str, nargs='?', const='1s', default='1s',
