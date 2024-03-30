@@ -38,9 +38,9 @@ parser = argparse.ArgumentParser(
     description='Solar Viewer is designed to measure microwave radiation from the sun. This'
                 ' program controls tracking the sun, collecting data, and data analysis.')
 
-parser.add_argument('duration', type=str, nargs='?', const=3, default = 3,
+parser.add_argument('--duration', type=str, nargs='?', const=3, default = 3,
                     help='Duration of elapsed time taking data. Format HH - HH(00-23)')
-parser.add_argument('meas_interval', type=str, nargs='?', const=5, default = 5,
+parser.add_argument('--meas_interval', type=str, nargs='?', const=5, default = 5,
                     help='Time in minutes between measurements. Format MM(0-59)')
 parser.add_argument('--elevation_offset', type=float, nargs='?', const=0, default=22.5,
                     help='Specify primary lobes offset from horizontal in degrees. Default = 22.5')
@@ -102,6 +102,34 @@ meas_interval = int(float(MEAS_INTERVAL) * 60)
 # Calibration and position determination
 antAlt, antAz = calibrate(ANT_OFFSET_EL, ANT_OFFSET_AZ)
 
+def moveAndTakeImage(antAlt, antAz, startingAlt, startingAz):
+    # Initial calculation of the difference in degrees between antenna and starting position
+    diffAlt, diffAz, antAlt, antAz = getDifferenceDeg(antAlt, antAz, startingAlt, startingAz, ANT_OFFSET_EL, ANT_OFFSET_AZ)
+    degErrorAlt, degErrorAz = moveStepper(diffAlt, diffAz)
+
+    # Initialize a 2D array to store the data collected
+    data = np.zeros((IMG_HEIGHT, IMG_WIDTH))
+
+    # Data collection loop, scanning over the specified range in Altitude and Azimuth
+    for i in range(IMG_HEIGHT):
+        # Alternate scanning direction for each row to improve efficiency
+        if i % 2 == 0:
+            for j in range(IMG_WIDTH):
+                data[i][j] = measPower(FREQ_MIN, FREQ_MAX, INTEGRATION_INTERVAL, GAIN)
+                diffAlt, diffAz, antAlt, antAz = getDifferenceDeg(antAlt, antAz, antAlt, antAz + 1, ANT_OFFSET_EL, ANT_OFFSET_AZ)
+                moveStepper(0, diffAz)
+                time.sleep(0.2)
+        else:
+            for j in range(IMG_WIDTH):
+                data[i][IMG_WIDTH-j-1] = measPower(FREQ_MIN, FREQ_MAX, INTEGRATION_INTERVAL, GAIN)
+                diffAlt, diffAz, antAlt, antAz = getDifferenceDeg(antAlt, antAz, antAlt, antAz - 1, ANT_OFFSET_EL, ANT_OFFSET_AZ)
+                moveStepper(0, diffAz)
+                time.sleep(0.2)
+        diffAlt, diffAz, antAlt, antAz = getDifferenceDeg(antAlt, antAz, antAlt + 1, antAz, ANT_OFFSET_EL, ANT_OFFSET_AZ)
+        moveStepper(diffAlt, 0)
+
+    return data, antAlt, antAz
+
 while current_time < end_time:
     sunAlt, sunAz = getSunPosition(LAT, LON)
 
@@ -142,33 +170,4 @@ while current_time < end_time:
 
     if(ECLIPSE_START_TIME >= current_time or ECLIPSE_END_TIME <= current_time):
         plt.pause(meas_interval)
-
-
-def moveAndTakeImage(antAlt, antAz, startingAlt, startingAz):
-    # Initial calculation of the difference in degrees between antenna and starting position
-    diffAlt, diffAz, antAlt, antAz = getDifferenceDeg(antAlt, antAz, startingAlt, startingAz, ANT_OFFSET_EL, ANT_OFFSET_AZ)
-    degErrorAlt, degErrorAz = moveStepper(diffAlt, diffAz)
-
-    # Initialize a 2D array to store the data collected
-    data = np.zeros((IMG_HEIGHT, IMG_WIDTH))
-
-    # Data collection loop, scanning over the specified range in Altitude and Azimuth
-    for i in range(IMG_HEIGHT):
-        # Alternate scanning direction for each row to improve efficiency
-        if i % 2 == 0:
-            for j in range(IMG_WIDTH):
-                data[i][j] = measPower(FREQ_MIN, FREQ_MAX, INTEGRATION_INTERVAL, GAIN)
-                diffAlt, diffAz, antAlt, antAz = getDifferenceDeg(antAlt, antAz, antAlt, antAz + 1, ANT_OFFSET_EL, ANT_OFFSET_AZ)
-                moveStepper(0, diffAz)
-                time.sleep(0.2)
-        else:
-            for j in range(IMG_WIDTH):
-                data[i][IMG_WIDTH-j-1] = measPower(FREQ_MIN, FREQ_MAX, INTEGRATION_INTERVAL, GAIN)
-                diffAlt, diffAz, antAlt, antAz = getDifferenceDeg(antAlt, antAz, antAlt, antAz - 1, ANT_OFFSET_EL, ANT_OFFSET_AZ)
-                moveStepper(0, diffAz)
-                time.sleep(0.2)
-        diffAlt, diffAz, antAlt, antAz = getDifferenceDeg(antAlt, antAz, antAlt + 1, antAz, ANT_OFFSET_EL, ANT_OFFSET_AZ)
-        moveStepper(diffAlt, 0)
-
-    return data, antAlt, antAz
 
