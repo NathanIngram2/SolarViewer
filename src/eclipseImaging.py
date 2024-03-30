@@ -102,12 +102,18 @@ PLOT_FLAG = args.plot_figure
 SOCKET_HOST = args.socket_host
 
 def socket_send(data):
-    if (SOCKET_HOST != None):
-        s = socket.socket()
-        s.settimeout(20)
-        s.connect((SOCKET_HOST, 65432))
-        s.sendall(pickle.dumps(data))
-        s.close()
+    global SOCKET_HOST
+    if SOCKET_HOST != None:
+        try:
+            s = socket.socket()
+            s.settimeout(20)
+            s.connect((SOCKET_HOST, 65432))
+            s.sendall(pickle.dumps(data))
+            s.close()
+        except:
+            Log.error("Could not send data over socket. Disabling socket for remainder of execution.")
+            SOCKET_HOST = None
+
 
 socket_send({"id" : "s"})
 
@@ -157,7 +163,8 @@ def moveAndTakeImage(antAlt, antAz, startingAlt, startingAz):
         # Alternate scanning direction for each row to improve efficiency
         if i % 2 == 0:
             for j in range(IMG_WIDTH):
-                time_data[i][j] = str(datetime.datetime.now().strftime("%Y%m%d%H%M%S"))
+                now = datetime.datetime.now()
+                time_data[i][j] = str(now.strftime("%Y%m%d%H%M%S"))
                 power_data[i][j] = measPower(FREQ_MIN, FREQ_MAX, INTEGRATION_INTERVAL, GAIN)
                 az_data[i][j] = antAz
                 alt_data[i][j] = antAlt
@@ -165,11 +172,15 @@ def moveAndTakeImage(antAlt, antAz, startingAlt, startingAz):
                 file.write(f"{time_data[i][j]},{az_data[i][j]},{alt_data[i][j]},{power_data[i][j]}\n")
                 file.close()
                 diffAlt, diffAz, antAlt, antAz = getDifferenceDeg(antAlt, antAz, antAlt, antAz + AZ_STEP, ANT_OFFSET_EL, ANT_OFFSET_AZ)
+                tmpSunAlt, tmpSunAz = getSunPosition(LAT, LON)
+                socket_send({"id" : "pt", "sun_az" : tmpSunAz, "sun_alt" : tmpSunAlt, "telescope_az" : antAz, "telescope_alt" : antAlt,
+                             "time" : now, "power" : power_data[i][j]})
                 moveStepper(0, diffAz)
                 time.sleep(STAB_TIME)
         else:
             for j in range(IMG_WIDTH):
-                time_data[i][IMG_WIDTH-j-1] = str(datetime.datetime.now().strftime("%Y%m%d%H%M%S"))
+                now = datetime.datetime.now()
+                time_data[i][IMG_WIDTH-j-1] = str(now.strftime("%Y%m%d%H%M%S"))
                 power_data[i][IMG_WIDTH-j-1] = measPower(FREQ_MIN, FREQ_MAX, INTEGRATION_INTERVAL, GAIN)
                 az_data[i][IMG_WIDTH-j-1] = antAz
                 alt_data[i][IMG_WIDTH-j-1] = antAlt
@@ -177,6 +188,10 @@ def moveAndTakeImage(antAlt, antAz, startingAlt, startingAz):
                 file.write(f"{time_data[i][IMG_WIDTH-j-1]},{az_data[i][IMG_WIDTH-j-1]},{alt_data[i][IMG_WIDTH-j-1]},{power_data[i][IMG_WIDTH-j-1]}\n")
                 file.close()
                 diffAlt, diffAz, antAlt, antAz = getDifferenceDeg(antAlt, antAz, antAlt, antAz - AZ_STEP, ANT_OFFSET_EL, ANT_OFFSET_AZ)
+                tmpSunAlt, tmpSunAz = getSunPosition(LAT, LON)
+                socket_send({"id": "pt", "sun_az": tmpSunAz, "sun_alt": tmpSunAlt, "telescope_az": antAz,
+                             "telescope_alt": antAlt,
+                             "time": now, "power": power_data[i][IMG_WIDTH-j-1]})
                 moveStepper(0, diffAz)
                 time.sleep(STAB_TIME)
         diffAlt, diffAz, antAlt, antAz = getDifferenceDeg(antAlt, antAz, antAlt + EL_STEP, antAz, ANT_OFFSET_EL, ANT_OFFSET_AZ)
@@ -189,7 +204,7 @@ def moveAndTakeImage(antAlt, antAz, startingAlt, startingAz):
                power_data, delimiter=",")
     Log.info("Image data (power only) saved to: " + save_data_p_only_path)
 
-    full_data = {"time" : time_data, "az" : az_data, "alt" : alt_data, "power" : power_data}
+    full_data = {"id" : "im", "time" : time_data, "az" : az_data, "alt" : alt_data, "power" : power_data}
 
     return full_data, antAlt, antAz
 
