@@ -29,6 +29,7 @@ import time
 import datetime
 import os
 import socket
+import pickle
 
 # Method imports
 from dataCollection import measPower
@@ -73,8 +74,8 @@ parser.add_argument('--stabilization_time', type=float, nargs='?', const=0.2, de
                     help='Time in seconds to wait before taking a measurement after moving the steppers. Default = 0.2')
 parser.add_argument('--plot_figure', type=int, nargs='?', const=0, default=0,
                     help='Flag to select if plot should be generated. 0 = False, 1 = True. Default = 0')
-parser.add_argument('--socket_host', type=str, nargs='?',
-                    help='Specify the hostname for the machine receiving data. No Default.')
+parser.add_argument('--socket_host', type=str, nargs='?', const=None, default=None,
+                    help='Specify the hostname for the machine receiving data. Default = None (socket disabled).')
 args = parser.parse_args()
 
 # Setup Logging
@@ -100,9 +101,15 @@ STAB_TIME = args.stabilization_time
 PLOT_FLAG = args.plot_figure
 SOCKET_HOST = args.socket_host
 
-#with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
-#    s.connect((SOCKET_HOST, 65432))
+def socket_send(data):
+    if (SOCKET_HOST != None):
+        s = socket.socket()
+        s.settimeout(20)
+        s.connect((SOCKET_HOST, 65432))
+        s.sendall(pickle.dumps(data))
+        s.close()
 
+socket_send("s")
 
 LOWER_LIM_ALT = 0
 UPPER_LIM_ALT = 32
@@ -136,9 +143,9 @@ def moveAndTakeImage(antAlt, antAz, startingAlt, startingAz):
 
     # Setup file to write to
     fmt_start_time = str(datetime.datetime.now().strftime("%Y%m%d%H%M%S"))
-    save_data_path = "ImageData" + fmt_start_time + ".csv"
+    save_data_path = os.path.join(Log.logDirPath, "ImageData" + fmt_start_time + ".csv")
     file = open(save_data_path, 'w')
-    file.write("time,az,alt,power")
+    file.write("time,az,alt,power\n")
     file.close()
     Log.info("Created file " + save_data_path + " to store all image data (time, az, alt, power).")
 
@@ -213,7 +220,7 @@ while current_time < end_time:
 
     full_data, antAlt, antAz = moveAndTakeImage(antAlt, antAz, startingAlt, startingAz)
 
-
+    socket_send(full_data)
 
     if PLOT_FLAG == 1:
         Log.info("Generating plot...")
@@ -228,3 +235,4 @@ while current_time < end_time:
         Log.info(f"Waiting {meas_interval} seconds")
         plt.pause(meas_interval)
 
+socket_send("b")
