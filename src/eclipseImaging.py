@@ -208,7 +208,9 @@ def moveAndTakeImage(antAlt, antAz, startingAlt, startingAz):
 
     return full_data, antAlt, antAz
 
-while current_time < end_time:
+
+while current_time < end_time-datetime.timedelta(minutes=meas_interval):
+    iteration_start_time = datetime.datetime.now(tz=None)
     sunAlt, sunAz = getSunPositionFromPickle()
 
     # Calculate the starting Altitude and Azimuth based on the sun's position and image dimensions
@@ -244,10 +246,16 @@ while current_time < end_time:
         plt.savefig(os.path.join(Log.logDirPath, "figure.png"))
         plt.show()
 
+    next_image_time = iteration_start_time+datetime.timedelta(minutes=meas_interval)
+
+    Log.info(f"Waiting until {next_image_time} before starting next image.")
+    while datetime.datetime.now() < next_image_time:
+        pass
+
     current_time = datetime.datetime.now(tz=None)
 
-    if(ECLIPSE_START_TIME >= current_time or ECLIPSE_END_TIME <= current_time):
-        Log.info(f"Waiting {meas_interval} seconds")
-        plt.pause(meas_interval)
+    #if(ECLIPSE_START_TIME >= current_time or ECLIPSE_END_TIME <= current_time):
+    #    Log.info(f"Waiting {meas_interval} seconds")
+    #    plt.pause(meas_interval)
 
 socket_send({"id" : "b"})
