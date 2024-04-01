@@ -146,7 +146,7 @@ def moveAndTakeImage(antAlt, antAz, startingAlt, startingAz):
     power_data = np.zeros((IMG_HEIGHT, IMG_WIDTH))
     az_data = np.zeros((IMG_HEIGHT, IMG_WIDTH))
     alt_data = np.zeros((IMG_HEIGHT, IMG_WIDTH))
-    time_data = np.zeros((IMG_HEIGHT, IMG_WIDTH))
+    time_data = np.zeros((IMG_HEIGHT, IMG_WIDTH), dtype=str)
 
     # Setup file to write to
     fmt_start_time = str(datetime.datetime.now().strftime("%Y%m%d%H%M%S"))
@@ -165,7 +165,7 @@ def moveAndTakeImage(antAlt, antAz, startingAlt, startingAz):
         if i % 2 == 0:
             for j in range(IMG_WIDTH):
                 now = datetime.datetime.now()
-                time_data[i][j] = str(now.strftime("%Y-%m-%d %H:%M:%S"))
+                time_data[i][j] = now.strftime("%Y-%m-%d %H:%M:%S")
                 power_data[i][j] = measPower(FREQ_MIN, FREQ_MAX, INTEGRATION_INTERVAL, GAIN)
                 az_data[i][j] = antAz
                 alt_data[i][j] = antAlt
@@ -184,7 +184,7 @@ def moveAndTakeImage(antAlt, antAz, startingAlt, startingAz):
         else:
             for j in range(IMG_WIDTH):
                 now = datetime.datetime.now()
-                time_data[i][IMG_WIDTH-j-1] = str(now.strftime("%Y-%m-%d %H:%M:%S"))
+                time_data[i][IMG_WIDTH-j-1] = now.strftime("%Y-%m-%d %H:%M:%S")
                 power_data[i][IMG_WIDTH-j-1] = measPower(FREQ_MIN, FREQ_MAX, INTEGRATION_INTERVAL, GAIN)
                 az_data[i][IMG_WIDTH-j-1] = antAz
                 alt_data[i][IMG_WIDTH-j-1] = antAlt
