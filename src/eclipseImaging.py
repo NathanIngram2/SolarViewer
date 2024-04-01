@@ -125,7 +125,7 @@ UPPER_LIM_AZ = 145
 ECLIPSE_START_TIME = datetime.datetime(2024,4,8,14,9,00) # Starts at 2:09pm
 ECLIPSE_END_TIME = datetime.datetime(2024,4,8,16,35,00) # Starts at 2:09pm
 
-meas_interval = int(float(MEAS_INTERVAL) * 60)
+meas_interval = int(float(MEAS_INTERVAL))
 
 duration_hrs = int(DUR.split(":")[0])
 current_time = datetime.datetime.now(tz=None)
@@ -261,9 +261,5 @@ while current_time < end_time:
         pass
 
     current_time = datetime.datetime.now(tz=None)
-
-    #if(ECLIPSE_START_TIME >= current_time or ECLIPSE_END_TIME <= current_time):
-    #    Log.info(f"Waiting {meas_interval} seconds")
-    #    plt.pause(meas_interval)
 
 socket_send({"id" : "b"})
