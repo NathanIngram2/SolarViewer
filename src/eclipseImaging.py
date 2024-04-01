@@ -106,7 +106,7 @@ def socket_send(data):
     if SOCKET_HOST != None:
         try:
             s = socket.socket()
-            s.settimeout(20)
+            s.settimeout(0.5)
             s.connect((SOCKET_HOST, 65432))
             s.sendall(pickle.dumps(data))
             s.close()

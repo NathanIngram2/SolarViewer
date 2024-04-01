@@ -47,12 +47,13 @@ def socket_recieve():
     conn.close()
     return pickle.loads(data)
 
-
+"""
 print("Waiting until start message recieved")
 recieved = socket_recieve()
 while recieved["id"] != "s":
     recieved = socket_recieve()
 print("Start recieved")
+"""
 
 while True:
     r = socket_recieve()
