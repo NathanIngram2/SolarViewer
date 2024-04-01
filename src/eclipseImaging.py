@@ -125,12 +125,12 @@ UPPER_LIM_AZ = 145
 ECLIPSE_START_TIME = datetime.datetime(2024,4,8,14,9,00) # Starts at 2:09pm
 ECLIPSE_END_TIME = datetime.datetime(2024,4,8,16,35,00) # Starts at 2:09pm
 
+meas_interval = int(float(MEAS_INTERVAL) * 60)
+
 duration_hrs = int(DUR.split(":")[0])
 current_time = datetime.datetime.now(tz=None)
 duration_hrs_min = datetime.timedelta(hours=duration_hrs)
-end_time = current_time + duration_hrs_min
-
-meas_interval = int(float(MEAS_INTERVAL) * 60)
+end_time = current_time + duration_hrs_min - datetime.timedelta(minutes=meas_interval)
 
 # Calibration and position determination
 antAlt, antAz = calibrate(ANT_OFFSET_EL, ANT_OFFSET_AZ)
@@ -159,7 +159,7 @@ def moveAndTakeImage(antAlt, antAz, startingAlt, startingAz):
     image_start_time = time.time()
     # Data collection loop, scanning over the specified range in Altitude and Azimuth
     for i in range(IMG_HEIGHT):
-        Log.info(f"Begining row {i}")
+        Log.info(f"Beginning row {i}")
         # Alternate scanning direction for each row to improve efficiency
         if i % 2 == 0:
             for j in range(IMG_WIDTH):
@@ -171,11 +171,14 @@ def moveAndTakeImage(antAlt, antAz, startingAlt, startingAz):
                 file = open(save_data_path, 'a')
                 file.write(f"{time_data[i][j]},{az_data[i][j]},{alt_data[i][j]},{power_data[i][j]}\n")
                 file.close()
-                diffAlt, diffAz, antAlt, antAz = getDifferenceDeg(antAlt, antAz, antAlt, antAz + AZ_STEP, ANT_OFFSET_EL, ANT_OFFSET_AZ)
+
                 tmpSunAlt, tmpSunAz = getSunPositionFromPickle()
                 socket_send({"id" : "pt", "sun_az" : tmpSunAz, "sun_alt" : tmpSunAlt, "telescope_az" : antAz, "telescope_alt" : antAlt,
                              "time" : now, "power" : power_data[i][j]})
-                moveStepper(0, diffAz)
+                if j != IMG_WIDTH-1:
+                    diffAlt, diffAz, antAlt, antAz = getDifferenceDeg(antAlt, antAz, antAlt, antAz + AZ_STEP,
+                                                                      ANT_OFFSET_EL, ANT_OFFSET_AZ)
+                    moveStepper(0, diffAz)
                 time.sleep(STAB_TIME)
         else:
             for j in range(IMG_WIDTH):
@@ -187,15 +190,19 @@ def moveAndTakeImage(antAlt, antAz, startingAlt, startingAz):
                 file = open(save_data_path, 'a')
                 file.write(f"{time_data[i][IMG_WIDTH-j-1]},{az_data[i][IMG_WIDTH-j-1]},{alt_data[i][IMG_WIDTH-j-1]},{power_data[i][IMG_WIDTH-j-1]}\n")
                 file.close()
-                diffAlt, diffAz, antAlt, antAz = getDifferenceDeg(antAlt, antAz, antAlt, antAz - AZ_STEP, ANT_OFFSET_EL, ANT_OFFSET_AZ)
                 tmpSunAlt, tmpSunAz = getSunPositionFromPickle()
                 socket_send({"id": "pt", "sun_az": tmpSunAz, "sun_alt": tmpSunAlt, "telescope_az": antAz,
                              "telescope_alt": antAlt,
                              "time": now, "power": power_data[i][IMG_WIDTH-j-1]})
-                moveStepper(0, diffAz)
+                if j != IMG_WIDTH-1:
+                    diffAlt, diffAz, antAlt, antAz = getDifferenceDeg(antAlt, antAz, antAlt, antAz - AZ_STEP,
+                                                                      ANT_OFFSET_EL, ANT_OFFSET_AZ)
+                    moveStepper(0, diffAz)
                 time.sleep(STAB_TIME)
-        diffAlt, diffAz, antAlt, antAz = getDifferenceDeg(antAlt, antAz, antAlt + EL_STEP, antAz, ANT_OFFSET_EL, ANT_OFFSET_AZ)
-        moveStepper(diffAlt, 0)
+        if i != IMG_HEIGHT-1:
+            diffAlt, diffAz, antAlt, antAz = getDifferenceDeg(antAlt, antAz, antAlt + EL_STEP, antAz, ANT_OFFSET_EL,
+                                                              ANT_OFFSET_AZ)
+            moveStepper(diffAlt, 0)
     image_end_time = time.time()
     Log.info(f"Image completed in {image_end_time-image_start_time}s, {(image_end_time-image_start_time)/(IMG_WIDTH*IMG_HEIGHT)}s per pixel")
     # Save the collected data to a CSV file with a timestamp
@@ -209,7 +216,8 @@ def moveAndTakeImage(antAlt, antAz, startingAlt, startingAz):
     return full_data, antAlt, antAz
 
 
-while current_time < end_time-datetime.timedelta(minutes=meas_interval):
+Log.info(f"Beginning main loop. Current time: {current_time}. Loop will continue until: {end_time}.")
+while current_time < end_time:
     iteration_start_time = datetime.datetime.now(tz=None)
     sunAlt, sunAz = getSunPositionFromPickle()
 
@@ -222,16 +230,16 @@ while current_time < end_time-datetime.timedelta(minutes=meas_interval):
     # Checking that entire image is within limits before beginning
     Log.info("Checking bounds of image are within limits...")
     if finalAlt > (UPPER_LIM_ALT + ANT_OFFSET_EL) or finalAlt < (LOWER_LIM_ALT + ANT_OFFSET_EL):
-        Log.error("Image Final altitude - " + str(finalAlt) + " is out of range. Exiting")
+        Log.error("Image Final altitude " + str(finalAlt) + " is out of range. Exiting")
         exit()
     if startingAlt > (UPPER_LIM_ALT + ANT_OFFSET_EL) or startingAlt < (LOWER_LIM_ALT + ANT_OFFSET_EL):
-        Log.error("Image Starting altitude - " + str(startingAlt) + " is out of range. Exiting")
+        Log.error("Image Starting altitude " + str(startingAlt) + " is out of range. Exiting")
         exit()
     if finalAz > (UPPER_LIM_AZ + ANT_OFFSET_AZ) or finalAz < (LOWER_LIM_AZ + ANT_OFFSET_AZ):
-        Log.error("Image Final azimuth - " + str(finalAz) + " is out of range. Exiting")
+        Log.error("Image Final azimuth " + str(finalAz) + " is out of range. Exiting")
         exit()
     if startingAz > (UPPER_LIM_AZ + ANT_OFFSET_AZ) or startingAz < (LOWER_LIM_AZ + ANT_OFFSET_AZ):
-        Log.error("Image Starting azimuth - " + str(startingAz) + " is out of range. Exiting")
+        Log.error("Image Starting azimuth " + str(startingAz) + " is out of range. Exiting")
         exit()
     Log.info("All image bounds are within limits.")
 

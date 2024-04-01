@@ -120,6 +120,7 @@ def getSunPositionFromPickle():
     a maximum step size of 10 seconds.
     :return: Sun position in degrees. Alt, Az (float)
     """
+    Log.info("Loading sun position data from pickled file")
     with open("./../bin/April8Eclipse.pickle", 'rb') as handle:
         sunPos = pickle.load(handle)
     target_date = datetime.datetime.utcnow()

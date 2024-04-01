@@ -34,7 +34,7 @@ import time
 plt.rcParams.update({'font.size': 24})
 plt.rcParams['lines.markersize'] = 40
 
-#%% Input parameters
+#% Input parameters
 
 # Heatmap
 heatmap = np.zeros((8, 8))-34
@@ -148,4 +148,4 @@ while True:
             heatmap = b["power"]
             plot()
         last_drawn == latest_file
-    time.sleep(0.5)
+    #time.sleep(0.2)

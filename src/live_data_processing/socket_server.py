@@ -28,8 +28,8 @@ import matplotlib.pyplot as plt
 import time
 
 
-#HOST = '192.168.1.2'
-HOST = 'localhost'
+HOST = '192.168.1.2'
+#HOST = 'localhost'
 PORT = 65432
 
 def socket_recieve():
@@ -52,15 +52,11 @@ print("Waiting until start message recieved")
 recieved = socket_recieve()
 while recieved["id"] != "s":
     recieved = socket_recieve()
-
 print("Start recieved")
-fig, axs = plt.subplot_mosaic("AB;AB;AB;CC;DD")
-fig.set_figwidth(18)
-fig.set_figheight(14)
-
 
 while True:
     r = socket_recieve()
+    print("Recieved packet with ID " + r["id"])
     if r["id"] == "b":
         break
     with open(f"./pickles/{time.time()}.pickle", 'wb') as handle:

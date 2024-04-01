@@ -115,16 +115,16 @@ finalAz = startingAz + IMG_WIDTH
 # Checking that entire image is within limits before beginning
 Log.info("Checking bounds of image are within limits...")
 if finalAlt > (UPPER_LIM_ALT + ANT_OFFSET_EL) or finalAlt < (LOWER_LIM_ALT + ANT_OFFSET_EL):
-    Log.error("Image Final altitude - " + str(finalAlt) + " is out of range. Exiting")
+    Log.error("Image Final altitude " + str(finalAlt) + " is out of range. Exiting")
     exit()
 if startingAlt > (UPPER_LIM_ALT + ANT_OFFSET_EL) or startingAlt < (LOWER_LIM_ALT + ANT_OFFSET_EL):
-    Log.error("Image Starting altitude - " + str(startingAlt) + " is out of range. Exiting")
+    Log.error("Image Starting altitude " + str(startingAlt) + " is out of range. Exiting")
     exit()
 if finalAz > (UPPER_LIM_AZ + ANT_OFFSET_AZ) or finalAz < (LOWER_LIM_AZ + ANT_OFFSET_AZ):
-    Log.error("Image Final azimuth - " + str(finalAz) + " is out of range. Exiting")
+    Log.error("Image Final azimuth " + str(finalAz) + " is out of range. Exiting")
     exit()
 if startingAz > (UPPER_LIM_AZ + ANT_OFFSET_AZ) or startingAz < (LOWER_LIM_AZ + ANT_OFFSET_AZ):
-    Log.error("Image Starting azimuth - " + str(startingAz) + " is out of range. Exiting")
+    Log.error("Image Starting azimuth " + str(startingAz) + " is out of range. Exiting")
     exit()
 Log.info("All image bounds are within limits.")
 
@@ -141,17 +141,20 @@ for i in range(IMG_HEIGHT):
     if i % 2 == 0:
         for j in range(IMG_WIDTH):
             data[i][j] = measPower(FREQ_MIN, FREQ_MAX, INTEGRATION_INTERVAL, GAIN)
-            diffAlt, diffAz, antAlt, antAz = getDifferenceDeg(antAlt, antAz, antAlt, antAz + 1, ANT_OFFSET_EL, ANT_OFFSET_AZ)
-            moveStepper(0, diffAz)
+            if j != IMG_WIDTH-1:
+                diffAlt, diffAz, antAlt, antAz = getDifferenceDeg(antAlt, antAz, antAlt, antAz + 1, ANT_OFFSET_EL, ANT_OFFSET_AZ)
+                moveStepper(0, diffAz)
             time.sleep(0.2)
     else:
         for j in range(IMG_WIDTH):
             data[i][IMG_WIDTH-j-1] = measPower(FREQ_MIN, FREQ_MAX, INTEGRATION_INTERVAL, GAIN)
-            diffAlt, diffAz, antAlt, antAz = getDifferenceDeg(antAlt, antAz, antAlt, antAz - 1, ANT_OFFSET_EL, ANT_OFFSET_AZ)
-            moveStepper(0, diffAz)
+            if j != IMG_WIDTH-1:
+                diffAlt, diffAz, antAlt, antAz = getDifferenceDeg(antAlt, antAz, antAlt, antAz - 1, ANT_OFFSET_EL, ANT_OFFSET_AZ)
+                moveStepper(0, diffAz)
             time.sleep(0.2)
-    diffAlt, diffAz, antAlt, antAz = getDifferenceDeg(antAlt, antAz, antAlt + 1, antAz, ANT_OFFSET_EL, ANT_OFFSET_AZ)
-    moveStepper(diffAlt, 0)
+    if i != IMG_HEIGHT-1:
+        diffAlt, diffAz, antAlt, antAz = getDifferenceDeg(antAlt, antAz, antAlt + 1, antAz, ANT_OFFSET_EL, ANT_OFFSET_AZ)
+        moveStepper(diffAlt, 0)
 
 # Save the collected data to a CSV file with a timestamp
 np.savetxt(os.path.join(Log.logDirPath, "ImageData" + str(datetime.datetime.now().strftime("%Y%m%d%H%M%S")) + ".csv"),
