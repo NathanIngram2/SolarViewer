@@ -111,8 +111,9 @@ def socket_send(data):
             s.sendall(pickle.dumps(data))
             s.close()
         except:
-            Log.error("Could not send data over socket. Disabling socket for remainder of execution.")
-            SOCKET_HOST = None
+            Log.error("Could not send data over socket.")
+            #Log.error("Could not send data over socket. Disabling socket for remainder of execution.")
+            #SOCKET_HOST = None
 
 
 socket_send({"id" : "s"})
@@ -164,7 +165,7 @@ def moveAndTakeImage(antAlt, antAz, startingAlt, startingAz):
         if i % 2 == 0:
             for j in range(IMG_WIDTH):
                 now = datetime.datetime.now()
-                time_data[i][j] = str(now.strftime("%Y%m%d%H%M%S"))
+                time_data[i][j] = str(now.strftime("%Y-%m-%d %H:%M:%S"))
                 power_data[i][j] = measPower(FREQ_MIN, FREQ_MAX, INTEGRATION_INTERVAL, GAIN)
                 az_data[i][j] = antAz
                 alt_data[i][j] = antAlt
@@ -183,7 +184,7 @@ def moveAndTakeImage(antAlt, antAz, startingAlt, startingAz):
         else:
             for j in range(IMG_WIDTH):
                 now = datetime.datetime.now()
-                time_data[i][IMG_WIDTH-j-1] = str(now.strftime("%Y%m%d%H%M%S"))
+                time_data[i][IMG_WIDTH-j-1] = str(now.strftime("%Y-%m-%d %H:%M:%S"))
                 power_data[i][IMG_WIDTH-j-1] = measPower(FREQ_MIN, FREQ_MAX, INTEGRATION_INTERVAL, GAIN)
                 az_data[i][IMG_WIDTH-j-1] = antAz
                 alt_data[i][IMG_WIDTH-j-1] = antAlt

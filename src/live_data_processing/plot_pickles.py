@@ -32,7 +32,7 @@ import pickle
 import time
 
 plt.rcParams.update({'font.size': 24})
-plt.rcParams['lines.markersize'] = 40
+#plt.rcParams['lines.markersize'] = 40
 
 #% Input parameters
 
@@ -42,7 +42,7 @@ az_min = 10
 az_max = 20
 alt_min = 10
 alt_max = 20
-scan_timestamp = "2024-04-08 13:55:20EDT"
+scan_timestamp = "None"
 
 # Heading
 sun_az = 20
@@ -61,8 +61,8 @@ p_lst = []
 # Max power (list of datetime and list of maximum value from each image)
 #pmax_date_lst = [base - datetime.timedelta(seconds=x) for x in range(60)]
 #pmax_lst = np.sin(np.linspace(0, 16*np.pi, 60)) - 32
-pmax_date_lst = np.empty(0, dtype=np.datetime64)
-pmax_lst = np.empty(0, dtype=float)
+pmax_date_lst = []
+pmax_lst = []
 
 #% Plotting
 
@@ -82,12 +82,12 @@ def plot():
     
     fig.colorbar(im, cax=cbar_ax)
     
-    axs['B'].set_title("Scan taken at\n" + scan_timestamp)
+    axs['B'].set_title("Scan taken at:\n" + scan_timestamp)
     axs['B'].set_xlabel("Azimuth (deg)")
     axs['B'].set_ylabel("Elevation (deg)")
     
     # Heading
-    axs['A'].plot(sun_az, sun_alt, 'o', color='yellow', label='Sun')
+    axs['A'].plot(sun_az, sun_alt, 'o', color='yellow', label='Sun', markersize=40)
     axs['A'].plot(telescope_az, telescope_alt, 'o', color='k', markersize=20, label='Telescope Heading')
     circ = plt.Circle((telescope_az, telescope_alt), 1.5, color='k', alpha=0.25, label="Telescope Beamwidth (approx)")
     axs['A'].add_patch(circ)
@@ -100,12 +100,13 @@ def plot():
     #legnd = axs['A'].legend(loc="upper left")
     
     # Power
-    axs['C'].plot(p_date_lst, p_lst)
+    axs['C'].plot(p_date_lst, p_lst, 'o-')
     axs['C'].set_ylabel("Power (dB)")
     
     # Max power
-    #axs['D'].plot(pmax_date_lst, pmax_lst)
-    #axs['D'].set_ylabel("Power (dB)")
+    if len(pmax_date_lst) != 0:
+        axs['D'].plot(pmax_date_lst, pmax_lst, 'o-')
+        axs['D'].set_ylabel("Power (dB)")
     
     plt.tight_layout(pad=1.5)
     figManager = plt.get_current_fig_manager()
@@ -146,6 +147,14 @@ while True:
             plot()
         if b["id"] == "im":
             heatmap = b["power"]
+            az_min = b["az"].min()
+            az_max = b["az"].max()
+            alt_min = b["alt"].min()
+            alt_max = b["alt"].max()
+            time_stamp = b["time"][0][0]
+            scan_timestamp = f"{time_stamp}"
+            pmax_date_lst.append(b["time"][np.unravel_index(heatmap.argmax(), heatmap.shape)])
+            pmax_lst.append(heatmap.max())
             plot()
         last_drawn == latest_file
     #time.sleep(0.2)
