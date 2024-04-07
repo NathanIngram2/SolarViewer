@@ -49,10 +49,18 @@ def measPower(freq_min, freq_max, integration_interval, gain):
     # TODO: Parse rst for error message or nan. Log error.
     try:
         #rst = sp.run([command], shell=True, capture_output=True, text=True, check=True) # TODO: check=True was causing issues in testing
-        rst = sp.run([command], shell=True, capture_output=True, text=True)
-    except sp.CalledProcessError as e:
-        Log.error("Error executing rtl_power command: " + str(e))
-        return 0.0
+        rst = sp.run([command], shell=True, capture_output=True, text=True, timeout=4)
+    except:
+        Log.error("Error executing rtl_power command")
+        Log.error("User must manually reset SDR now")
+        input("Press enter once SDR reset...")
+        try:
+            Log.info("2nd attempt executing command: " + str(command))
+            rst = sp.run([command], shell=True, capture_output=True, text=True, timeout=4)
+        except:
+            Log.error("Error occurred again. Exiting program.")
+            exit()
+        #sp.run(['./resetusb'], shell=True, capture_output=True, text=True, timeout=1)
 
     Log.info("Done rtl_power. Reading CSV...")
     raw = pd.read_csv("tmp/rtl_power_out.csv")

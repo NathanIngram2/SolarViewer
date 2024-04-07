@@ -82,7 +82,7 @@ args = parser.parse_args()
 log = Log(args, os.path.realpath(__file__))
 
 # Constants and parsed arguments.
-DISH_ARM_ANGLE_CALIBRATION = 47.5 # Updated March 28 after testing
+DISH_ARM_ANGLE_CALIBRATION = 62.5 # Revered back to original value after April 7th testing
 LAT = args.latitude
 LON = args.longitude
 ANT_OFFSET_EL = args.elevation_offset
@@ -127,10 +127,10 @@ ECLIPSE_START_TIME = datetime.datetime(2024,4,8,14,9,00) # Starts at 2:09pm
 ECLIPSE_END_TIME = datetime.datetime(2024,4,8,16,35,00) # Starts at 2:09pm
 
 meas_interval = int(float(MEAS_INTERVAL))
-
 duration_hrs = int(DUR.split(":")[0])
+duration_min = int(DUR.split(":")[1])
 current_time = datetime.datetime.now(tz=None)
-duration_hrs_min = datetime.timedelta(hours=duration_hrs)
+duration_hrs_min = datetime.timedelta(hours=duration_hrs, minutes=duration_min)
 end_time = current_time + duration_hrs_min - datetime.timedelta(minutes=meas_interval)
 
 # Calibration and position determination
@@ -146,7 +146,7 @@ def moveAndTakeImage(antAlt, antAz, startingAlt, startingAz):
     power_data = np.zeros((IMG_HEIGHT, IMG_WIDTH))
     az_data = np.zeros((IMG_HEIGHT, IMG_WIDTH))
     alt_data = np.zeros((IMG_HEIGHT, IMG_WIDTH))
-    time_data = np.zeros((IMG_HEIGHT, IMG_WIDTH), dtype=str)
+    time_data = np.zeros((IMG_HEIGHT, IMG_WIDTH), dtype=object)
 
     # Setup file to write to
     fmt_start_time = str(datetime.datetime.now().strftime("%Y%m%d%H%M%S"))
@@ -217,16 +217,17 @@ def moveAndTakeImage(antAlt, antAz, startingAlt, startingAz):
     return full_data, antAlt, antAz
 
 
+frame_count = 0
 Log.info(f"Beginning main loop. Current time: {current_time}. Loop will continue until: {end_time}.")
 while current_time < end_time:
     iteration_start_time = datetime.datetime.now(tz=None)
     sunAlt, sunAz = getSunPositionFromPickle()
 
     # Calculate the starting Altitude and Azimuth based on the sun's position and image dimensions
-    startingAlt = sunAlt - (IMG_HEIGHT / 2)
-    startingAz = sunAz - (IMG_WIDTH / 2)
-    finalAlt = startingAlt + IMG_HEIGHT
-    finalAz = startingAz + IMG_WIDTH
+    startingAlt = sunAlt - (IMG_HEIGHT*EL_STEP / 2) + frame_count*0.32
+    startingAz = sunAz - (IMG_WIDTH*AZ_STEP / 2) + frame_count*0.62
+    finalAlt = startingAlt + IMG_HEIGHT*EL_STEP
+    finalAz = startingAz + IMG_WIDTH*AZ_STEP
 
     # Checking that entire image is within limits before beginning
     Log.info("Checking bounds of image are within limits...")
@@ -262,5 +263,7 @@ while current_time < end_time:
         pass
 
     current_time = datetime.datetime.now(tz=None)
+    frame_count += 1
+    Log.info(f"Updated frame_count to {frame_count}")
 
-socket_send({"id" : "b"})
+#socket_send({"id" : "b"})
